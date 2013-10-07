@@ -20,7 +20,7 @@
  * @package blocks
  * @author: Azmat Ullah, Talha Noor
  * @date: 20-Sep-2013
- * @copyright  Copyrights © 2012 - 2013 | 3i Logic (Pvt) Ltd.
+ * @copyright  Copyrights Â© 2012 - 2013 | 3i Logic (Pvt) Ltd.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,49 +28,33 @@ require_once('lib.php');
 class block_learning_plan extends block_base {
     public function init() {
         global $CFG, $USER, $COURSE;
-        $context = context_course::instance($COURSE->id);
-        if (has_capability('block/learning_plan:managepages', $context)) {
-            $this->title = get_string('learning_plan', 'block_learning_plan');
-        } else if (has_capability('block/learning_plan:viewpages', $context)) {
-            $this->title = get_string('myview', 'block_learning_plan');
-        } else {
-            $this->title = get_string('learning_plan', 'block_learning_plan');
-        }
+        $this->title = get_string('learning_plan', 'block_learning_plan');
     }
     public function get_content() {
         if ($this->content !== null) {
             return $this->content;
         }
         global $CFG, $USER, $COURSE, $PAGE;
+        if (has_capability('block/learning_plan:managepages', $this->context)) {
+            $this->title = get_string('learning_plan', 'block_learning_plan');
+        } else if (has_capability('block/learning_plan:viewpages', $this->context)) {
+            $this->title = get_string('myview', 'block_learning_plan');
+        }  
         $this->content =  new stdClass;
-        $context = context_course::instance($COURSE->id);
-        if (has_capability('block/learning_plan:managepages', $context)) {
+        
+        if (has_capability('block/learning_plan:managepages', $this->context)) {
             $pageurl = new moodle_url('/blocks/learning_plan/view.php?viewpage=');
-            $this->content->text .= html_writer::start_tag('li');
-            $this->content->text .= html_writer::link($pageurl.'1', get_string('learningpath', 'block_learning_plan'));
-            $this->content->text .= html_writer::end_tag('li');
-            $this->content->text .= html_writer::start_tag('li');
-            $this->content->text .= html_writer::link($pageurl.'2', get_string('add_training', 'block_learning_plan'));
-            $this->content->text .= html_writer::end_tag('li');
-            $this->content->text .= html_writer::start_tag('li');
-            $this->content->text .= html_writer::link($pageurl.'4', get_string('assign_training_learningplan', 'block_learning_plan'));
-            $this->content->text .= html_writer::end_tag('li');
-            $this->content->text .= html_writer::start_tag('li');
-            $this->content->text .= html_writer::link($pageurl.'5', get_string('assign_learningplan_user', 'block_learning_plan'));
-            $this->content->text .= html_writer::end_tag('li');
-            $this->content->text .= html_writer::start_tag('li');
-            $this->content->text .= html_writer::link($pageurl.'6', get_string('trainingstatus', 'block_learning_plan'));
-            $this->content->text .= html_writer::end_tag('li');
-            $this->content->text .= html_writer::start_tag('li');
+            $this->content->text .= html_writer::link($pageurl.'1', get_string('learningpath', 'block_learning_plan')).'<br>';
+            $this->content->text .= html_writer::link($pageurl.'2', get_string('add_training', 'block_learning_plan')).'<br>';
+            $this->content->text .= html_writer::link($pageurl.'4', get_string('assign_training_learningplan', 'block_learning_plan')).'<br>';
+            $this->content->text .= html_writer::link($pageurl.'5', get_string('assign_learningplan_user', 'block_learning_plan')).'<br>';
+            $this->content->text .= html_writer::link($pageurl.'6', get_string('trainingstatus', 'block_learning_plan')).'<br>';
             $this->content->text .= html_writer::link($pageurl.'7', get_string('search', 'block_learning_plan'));
-            $this->content->text .= html_writer::end_tag('li');
-        } else  {
+        } else if (has_capability('block/learning_plan:viewpages', $this->context)) {
             $pageurl = new moodle_url('/blocks/learning_plan/student/view.php?id=');
             $learning_plan=user_learningplan($USER->id);
             foreach($learning_plan as $lp) {
-                $this->content->text .= html_writer::start_tag('li');
-                $this->content->text .= html_writer::link($pageurl.$lp->id, $lp->learningplan);
-                $this->content->text .= html_writer::end_tag('li');
+                $this->content->text .= html_writer::link($pageurl.$lp->id, $lp->learningplan).'<br>';
             }
         }
     return $this->content;
