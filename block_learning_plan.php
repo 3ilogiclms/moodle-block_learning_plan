@@ -43,7 +43,10 @@ class block_learning_plan extends block_base {
         $this->content =  new stdClass;
         
         if (has_capability('block/learning_plan:managepages', $this->context)) {
-            $pageurl = new moodle_url('/blocks/learning_plan/view.php?viewpage=');
+            $pageurl = new moodle_url('/blocks/learning_plan/view.php?viewpage');
+            if (!strpos($pageurl,'=')) {
+                $pageurl .= '=';
+            }
             $this->content->text .= html_writer::link($pageurl.'1', get_string('learningpath', 'block_learning_plan')).'<br>';
             $this->content->text .= html_writer::link($pageurl.'2', get_string('add_training', 'block_learning_plan')).'<br>';
             $this->content->text .= html_writer::link($pageurl.'4', get_string('assign_training_learningplan', 'block_learning_plan')).'<br>';
@@ -51,7 +54,10 @@ class block_learning_plan extends block_base {
             $this->content->text .= html_writer::link($pageurl.'6', get_string('trainingstatus', 'block_learning_plan')).'<br>';
             $this->content->text .= html_writer::link($pageurl.'7', get_string('search', 'block_learning_plan'));
         } else if (has_capability('block/learning_plan:viewpages', $this->context)) {
-            $pageurl = new moodle_url('/blocks/learning_plan/student/view.php?id=');
+            $pageurl = new moodle_url('/blocks/learning_plan/student/view.php?id');
+            if (!strpos($pageurl,'=')) {
+                $pageurl .= '=';
+            }
             $learning_plan=user_learningplan($USER->id);
             foreach($learning_plan as $lp) {
                 $this->content->text .= html_writer::link($pageurl.$lp->id, $lp->learningplan).'<br>';
