@@ -65,4 +65,13 @@ class block_learning_plan extends block_base {
         }
     return $this->content;
     }
+    public function applicable_formats() {
+  return array(
+           'site-index' => true,
+          'course-view' => false, 
+   'course-view-social' => false,
+                  'mod' => false, 
+             'mod-quiz' => false
+  );
+}
 }
