@@ -64,7 +64,7 @@ function user_learningplan($u_id) {
     return $training;
 }
 function status_value($status_id) {
-    $status_value;
+    $status_value = '';
     if($status_id == '0') {
         $status_value = 'In-Progress';
      } else if ($status_id == '1') {
@@ -124,7 +124,7 @@ function display_list($lp_id, $u_id) {
     global $DB, $OUTPUT, $CFG;
     $table = new html_table();
     $table->id = 'statuslist';
-    $table->head  = array(get_string('s_no', 'block_learning_plan'), get_string('training_m', 'block_learning_plan'), get_string('user', 'block_learning_plan'), get_string('start_date', 'block_learning_plan'), get_string('end_date', 'block_learning_plan'), get_string('status', 'block_learning_plan'), get_string('remarks', 'block_learning_plan'));
+    $table->head  = array(get_string('s_no', 'block_learning_plan'), get_string('training_name', 'block_learning_plan'), get_string('user', 'block_learning_plan'), get_string('start_date', 'block_learning_plan'), get_string('end_date', 'block_learning_plan'), get_string('status', 'block_learning_plan'), get_string('remarks', 'block_learning_plan'));
     $table->size  = array('5%', '30%', '20%', '10%', '10%', '10%', '25%', '10%' );
     $table->align = array('center', 'left', 'left', 'center', 'center', 'center', 'left', 'left', 'center');
     $table->width = '100%';

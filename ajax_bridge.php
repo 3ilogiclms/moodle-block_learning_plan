@@ -37,6 +37,11 @@ $t_id = optional_param('t_id', null, PARAM_INT); // $_GET['t_id'];
 $status = optional_param('status', null, PARAM_INT);  // $_GET['status'];
 $hidetraining = optional_param('hidetraining', null, PARAM_INT); // $_GET['hidetraining'];
 $hideusers = optional_param('hideusers', null, PARAM_INT); //$_GET['hideusers'];
+
+require_login(0, false);
+$PAGE->set_context(context_system::instance());
+$PAGE->set_url('/blocks/learning_plan/ajax_bridge.php');
+
 if($lp_id && $t_id) {
     $form = new search();
     $table = $form->display_list($lp_id, $t_id, $status);
@@ -49,7 +54,7 @@ if($lp_id && $t_id) {
                                                  lpt inner join {learning_user_trainingplan} lut on lut.lpt_id=lpt.id  where lpt.lp_id=? AND lut.u_id=?',
                                                  array ($lp_id, $u_id), $limitfrom=0, $limitnum=0);
     }
-    // Find traiing on the base of lp Id.
+    // Find training on the base of lp Id.
     else if($lp_id && $t) {
         $attributes =  $DB->get_records_sql_menu('SELECT t_id as id,(select training_name from  {learning_training} where id =t_id) as name FROM {learning_plan_training}
                                                  where lp_id= ?', array ($lp_id), $limitfrom=0, $limitnum=0);

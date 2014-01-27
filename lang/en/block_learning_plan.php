@@ -69,7 +69,6 @@ $string['wrong_url'] = 'Wrong URL';
 $string['elearning'] = 'eLearning';
 $string['classroom'] = 'Class room';
 $string['onthejob'] = 'On the job';
-$string['training_m'] = 'Training method';
 $string['assignee'] = 'Assignee';
 $string['remove'] = 'Remove';
 $string['setting'] = 'Setting';
@@ -80,7 +79,3 @@ $string['learning_plan:addinstance'] = 'Add instance';
 $string['learning_plan:managepages'] = 'Manage pages';
 $string['learning_plan:viewpages'] = 'View pages';
 $string['user'] = 'User';
-
-
-
-
