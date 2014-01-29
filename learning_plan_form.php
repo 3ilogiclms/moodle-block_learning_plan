@@ -29,19 +29,22 @@ require_once("{$CFG->libdir}/formslib.php");
 class learningplan_form extends moodleform {
     public function definition() {
         $mform =& $this->_form;
+        $errors= array();
         $mform->addElement('header', 'displayinfo', get_string('learningpath', 'block_learning_plan'));
         $mform->addElement('text', 'learning_plan', get_string('learningplan', 'block_learning_plan'));
         $mform->addRule('learning_plan', get_string('plan_format', 'block_learning_plan'), 'regex', '#^[A-Z0-9 ]+$#i', 'client');
-	$mform->addRule('learning_plan', $errors, 'required', null, 'server');
-        $mform->setType('learningplan', PARAM_RAW);
+        $mform->addRule('learning_plan', $errors, 'required', null, 'server');
+        $mform->setType('learning_plan', PARAM_RAW);
         $attributes = array('rows' => '8', 'cols' => '40');
         $mform->addElement('textarea', 'description', get_string('desc', 'block_learning_plan'), $attributes);
         $mform->setType('description', PARAM_TEXT);
         $mform->addElement('hidden', 'viewpage');
+        $mform->setType('viewpage', PARAM_INT);
         $mform->addElement('hidden', 'id');
+        $mform->setType('id', PARAM_INT);
         $this->add_action_buttons();
     }
-    public function validation($data) {
+    public function validation($data, $files) {
         global $DB;
         $errors= array();
         if($data['id']) {
@@ -122,6 +125,8 @@ class training_form extends moodleform {
         $mform =& $this->_form;
         $mform->addElement('header', 'displayinfo', get_string('add_training', 'block_learning_plan'));
         $radioarray=array();
+        if (!isset($attributes)) $attributes = "";
+        if (!isset($errors)) $errors = array();
         $radioarray[] =& $mform->createElement('radio', 'type_id', '', get_string('elearning', 'block_learning_plan'), 1 );
         $radioarray[] =& $mform->createElement('radio', 'type_id', '', get_string('classroom', 'block_learning_plan'), 2, $attributes);
         $radioarray[] =& $mform->createElement('radio', 'type_id', '', get_string('onthejob', 'block_learning_plan'), 3, $attributes);
@@ -129,20 +134,24 @@ class training_form extends moodleform {
         $mform->addRule('type_id', $errors, 'required', null, 'server');
         $mform->addElement('text', 'training_name', get_string('training_name', 'block_learning_plan'));
         $mform->addRule('training_name', get_string('training_format', 'block_learning_plan'), 'regex', '#^[A-Z0-9 ]+$#i', 'client');
-	$mform->addRule('training_name', $errors, 'required', null, 'server');
+        $mform->addRule('training_name', $errors, 'required', null, 'server');
+        $mform->setType('training_name', PARAM_TEXT);
         // $attributes = array('maxbytes' => '4194304', 'accepted_types' => "*");
         // $mform->addElement('file', 'attachment', get_string('attachment', 'block_learning_plan'), $attributes );
         // $mform->addElement('filepicker', 'attachment', get_string('attachment', 'block_learning_plan'), null, $attributes);
         $mform->addElement('text', 'url', get_string('url', 'block_learning_plan'));
         $mform->addRule('url', get_string('wrong_url', 'block_learning_plan'), 'regex', '/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i', 'client');
+        $mform->setType('url', PARAM_LOCALURL);
         $mform->addElement('date_time_selector', 'start_date', get_string('start_date', 'block_learning_plan'));
         $mform->addElement('date_time_selector', 'end_date', get_string('end_date', 'block_learning_plan'));
         $mform->addElement('static', 'errormsg');
         $mform->addElement('hidden', 'viewpage');
+        $mform->setType('viewpage', PARAM_INT);
         $mform->addElement('hidden', 'id');
+        $mform->setType('id', PARAM_INT);
         $this->add_action_buttons();
     }
-    public function validation($data) {
+    public function validation($data, $files) {
         global $DB;
         $errors= array();
         if($data['id']) {
@@ -246,7 +255,9 @@ class trainingmethod_form extends moodleform {
         $attributes = array('rows' => '8', 'cols' => '40');
         $mform->addElement('textarea', 'description', get_string('desc', 'block_learning_plan'), $attributes);
         $mform->addElement('hidden', 'viewpage');
+        $mform->setType('viewpage', PARAM_INT);
         $mform->addElement('hidden', 'id');
+        $mform->setType('id', PARAM_INT);
         $this->add_action_buttons();
     }
 
@@ -276,7 +287,9 @@ class assigntraining_learningplan__form extends moodleform {
                                      array('link' => $CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=2', 'label' => get_string('add_training', 'block_learning_plan')));
         $select->setmultiple(true);
         $mform->addElement('hidden', 'viewpage');
+        $mform->setType('viewpage', PARAM_INT);
         $mform->addElement('hidden', 'id');
+        $mform->setType('id', PARAM_INT);
         $this->add_action_buttons();
     }
 
@@ -348,6 +361,7 @@ class assignlerningplan_user_form extends moodleform {
     public function definition() {
         global $DB, $CFG, $USER;
         $mform =& $this->_form;
+        if (!isset($attributes1)) $attributes1 = "";
         $mform->addElement('header', 'displayinfo', get_string('assign_learningplan_user', 'block_learning_plan'));
         $attributes = $DB->get_records_sql_menu('SELECT id, learning_plan FROM {learning_learningplan}', null, $limitfrom=0, $limitnum=0);
         $mform->addElement('selectwithlink', 'l_id', get_string('learningplan', 'block_learning_plan'), $attributes, null,
@@ -358,7 +372,9 @@ class assignlerningplan_user_form extends moodleform {
         $select->setMultiple(true);
         // $mform->addElement('hidden', 'assignee', $USER->id);
         $mform->addElement('hidden', 'viewpage');
+        $mform->setType('viewpage', PARAM_INT);
         $mform->addElement('hidden', 'id');
+        $mform->setType('id', PARAM_INT);
         $this->add_action_buttons();
     }
 
@@ -428,8 +444,11 @@ class trainingstatus_form extends moodleform {
         $mform->addElement('select', 'status', get_string('status', 'block_learning_plan'), $attributes);
         $attributes = array('size' => '50', 'maxlength' => '1000');
         $mform->addElement('text', 'remarks', get_string('remarks', 'block_learning_plan'), $attributes);
+        $mform->setType('remarks', PARAM_TEXT);
         $mform->addElement('hidden', 'viewpage');
+        $mform->setType('viewpage', PARAM_INT);
         $mform->addElement('hidden', 'id');
+        $mform->setType('id', PARAM_INT);
         $this->add_action_buttons();
     }
 
@@ -452,10 +471,12 @@ class search extends moodleform {
         $attributes = array('In-progress', 'Not Yet Started', 'Complete', 'All Status');
         $mform->addElement('select', 'status', get_string('status', 'block_learning_plan'), $attributes);
         $mform->addElement('hidden', 'viewpage');
+        $mform->setType('viewpage', PARAM_INT);
         $mform->addElement('hidden', 'id');
+        $mform->setType('id', PARAM_INT);
         $mform->addElement('button', 'showuser', 'Search', array("id" => "btnajax"));
     }
-    public function display_list($lp_id, $t_id, $status) {
+    public function display_list($lp_id = "", $t_id = "", $status = "") {
         // if ($lp_id && $t_id) {
         global $DB, $OUTPUT, $CFG;
         $table = new html_table();

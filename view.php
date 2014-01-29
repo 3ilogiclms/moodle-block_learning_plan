@@ -25,6 +25,8 @@
  */
 
 require_once('../../config.php');
+$setting = null;
+$row = array();
 require_once('learning_plan_form.php');
 require_once('lib.php');
 require_once("{$CFG->libdir}/formslib.php");
@@ -34,6 +36,10 @@ $rem = optional_param('rem', null, PARAM_RAW);
 $edit = optional_param('edit', null, PARAM_RAW);
 $delete = optional_param('delete', null, PARAM_RAW);
 $id = optional_param('id', null, PARAM_INT);
+
+require_login();
+$context = context_system::instance();
+$PAGE->set_context($context);
 $PAGE->set_url('/blocks/learning_plan/view.php');
 $PAGE->set_pagelayout('standard');
 $PAGE->set_heading('Learning Plan');
