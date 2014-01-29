@@ -42,7 +42,8 @@ class learningplan_form extends moodleform {
         $mform->setType('viewpage', PARAM_INT);
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
-        $this->add_action_buttons();
+        // $this->add_action_buttons();
+        $this->add_action_buttons($cancel = false);
     }
     public function validation($data, $files) {
         global $DB;
@@ -149,7 +150,8 @@ class training_form extends moodleform {
         $mform->setType('viewpage', PARAM_INT);
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
-        $this->add_action_buttons();
+        // $this->add_action_buttons();
+        $this->add_action_buttons($cancel = false);
     }
     public function validation($data, $files) {
         global $DB;
@@ -258,7 +260,8 @@ class trainingmethod_form extends moodleform {
         $mform->setType('viewpage', PARAM_INT);
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
-        $this->add_action_buttons();
+        // $this->add_action_buttons();
+        $this->add_action_buttons($cancel = false);
     }
 
     public function display_list(){
@@ -290,7 +293,8 @@ class assigntraining_learningplan__form extends moodleform {
         $mform->setType('viewpage', PARAM_INT);
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
-        $this->add_action_buttons();
+        // $this->add_action_buttons();
+        $this->add_action_buttons($cancel = false);
     }
 
     public function display_list() {
@@ -375,7 +379,8 @@ class assignlerningplan_user_form extends moodleform {
         $mform->setType('viewpage', PARAM_INT);
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
-        $this->add_action_buttons();
+        // $this->add_action_buttons();
+        $this->add_action_buttons($cancel = false);
     }
 
     public function display_list() {
@@ -449,7 +454,8 @@ class trainingstatus_form extends moodleform {
         $mform->setType('viewpage', PARAM_INT);
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
-        $this->add_action_buttons();
+        // $this->add_action_buttons();
+        $this->add_action_buttons($cancel = false);
     }
 
     public function display_list() {
