@@ -58,7 +58,9 @@ class block_learning_plan extends block_base {
             if (!strpos($pageurl,'=')) {
                 $pageurl .= '=';
             }
-            $learning_plan=user_learningplan($USER->id);
+            // $learning_plan=user_learningplan($USER->id);
+            $learning_plan=$DB->get_recordset_sql('SELECT lp_id as id, (select  learning_plan  from {learning_learningplan} where id =lp_id) as learningplan FROM {learning_user_learningplan} where u_id = ?', array($USER->id));
+
             foreach($learning_plan as $lp) {
                 $this->content->text .= html_writer::link($pageurl.$lp->id, $lp->learningplan).'<br>';
             }
