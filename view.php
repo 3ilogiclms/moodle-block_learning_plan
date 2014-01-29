@@ -39,6 +39,11 @@ $id = optional_param('id', null, PARAM_INT);
 
 require_login();
 $context = context_system::instance();
+        if (!has_capability('block/learning_plan:managepages', $context)) {
+		        redirect($CFG->wwwroot);
+
+}
+$context = context_system::instance();
 $PAGE->set_context($context);
 $PAGE->set_url('/blocks/learning_plan/view.php');
 $PAGE->set_pagelayout('standard');
