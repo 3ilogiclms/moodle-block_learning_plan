@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /* Learning Plan Block
- * This plugin serves as a database and plan for all learning activities in the organziation, 
+ * This plugin serves as a database and plan for all learning activities in the organziation,
  * where such activities are organized for a more structured learning program.
  * @package blocks
- * @author: Azmat Ullah, Talha Noor
+ * @author: Azmat Ullah, Talha Noor, Michael Milette (Instrux Media)
  * @date: 20-Sep-2013
  * @copyright  Copyrights © 2012 - 2013 | 3i Logic (Pvt) Ltd.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -55,22 +55,20 @@ function learningplan_training($lp_id) {
 }
 function user_learningplan($u_id) {
     global $DB;
+    $page    = optional_param('page', 0, PARAM_INT);    // which page (default: page 0 - first)
+    $perpage = optional_param('perpage', 0, PARAM_INT); // how many per page (default: unlimited)
     $training=$DB->get_recordset_sql('SELECT lp_id as id, (select  learning_plan  from {learning_learningplan} where id =lp_id) as learningplan
                                      FROM {learning_user_learningplan} where u_id = ?', array($u_id),  $page*$perpage, $perpage);
-    // $training = $DB->get_records_sql_menu('SELECT lp_id as id, (select  learning_plan  from {learning_learningplan} 
-    // where id =lp_id) as learningplan FROM {learning_user_learningplan} where u_id = ?', array($u_id), $limitfrom=0, $limitnum=0);
-    // $training = $DB->get_record_sql('SELECT lp_id as id, (select  learning_plan 
-    //  from {learning_learningplan} where id =lp_id) as learningplan FROM {learning_user_learningplan} where u_id = ?', array($u_id));
     return $training;
 }
 function status_value($status_id) {
     $status_value = '';
     if($status_id == '0') {
-        $status_value = 'In-Progress';
+        $status_value = get_string('status_in_progress','block_learning_plan');
      } else if ($status_id == '1') {
-         $status_value = 'Not Yet Started';
+         $status_value = get_string('status_not_started','block_learning_plan');
      } else if ($status_id == '2') {
-         $status_value = 'Complete';
+         $status_value = get_string('status_completed','block_learning_plan');
      }
     return $status_value;
 
@@ -97,7 +95,7 @@ function get_user_name($id) {
                                  array($id));
     return $result->name;
 }
-function delete_learningplan_record($table, $id,$url) {
+function delete_learningplan_record($table, $id, $url, $lp_id = '') {
     global $DB;
     // Delete Department.
     if($table == 'learning_learningplan') {
@@ -113,7 +111,8 @@ function delete_learningplan_record($table, $id,$url) {
         $DB->delete_records('learning_plan_training', array('id'=> $id));
     }
     else if($table == 'learning_user_learningplan') {
-        $DB->delete_records('learning_user_learningplan', array('id'=> $id));
+        $DB->delete_records('learning_user_learningplan', array('u_id'=> $id, 'lp_id'=> $lp_id));
+        $DB->delete_records('learning_user_trainingplan', array('u_id'=> $id, 'lpt_id'=> $lp_id));
     }
     redirect($url);
 }
@@ -124,28 +123,40 @@ function display_list($lp_id, $u_id) {
     global $DB, $OUTPUT, $CFG;
     $table = new html_table();
     $table->id = 'statuslist';
-    $table->head  = array(get_string('s_no', 'block_learning_plan'), get_string('training_name', 'block_learning_plan'), get_string('user', 'block_learning_plan'), get_string('start_date', 'block_learning_plan'), get_string('end_date', 'block_learning_plan'), get_string('status', 'block_learning_plan'), get_string('remarks', 'block_learning_plan'));
+    $table->head  = array(get_string('s_no', 'block_learning_plan'),
+        get_string('training_name', 'block_learning_plan'),
+        get_string('user', 'block_learning_plan'), get_string('start_date', 'block_learning_plan'),
+        get_string('end_date', 'block_learning_plan'), get_string('status', 'block_learning_plan'),
+        get_string('remarks', 'block_learning_plan'));
     $table->size  = array('5%', '30%', '20%', '10%', '10%', '10%', '25%', '10%' );
     $table->align = array('center', 'left', 'left', 'center', 'center', 'center', 'left', 'left', 'center');
     $table->width = '100%';
     $table->data  = array();
-    $sql = 'select  t_id, lp_id, lut.status, lut.remarks, `u_id` as id,(select training_name from  {learning_training} where id =t_id)
-            as training,(select learning_plan from   {learning_learningplan} where id =lp_id) as learning_plan, (SELECT
-            CONCAT(firstname," ", lastname)FROM {user} where username!="guest" AND id = u_id) as name,(select
-            start_date from  {learning_training} where id =t_id)as date1,(select end_date from  {learning_training}
-            where id =t_id)as date2 from {learning_plan_training} lpt inner join {learning_user_trainingplan} lut
-            on lut.lpt_id=lpt.id  where lpt.lp_id=? AND lut.u_id=?'; //ORDER BY $orderby';
+    $sql = 'select  t_id, lp_id, lut.status, lut.remarks, `u_id` as id,
+            (select training_name from {learning_training} where id =t_id) as training,
+            (select url from {learning_training} where id =t_id) as url,
+            (select learning_plan from {learning_learningplan} where id =lp_id) as learning_plan,
+            (SELECT CONCAT(firstname," ", lastname)FROM {user} where username!="guest" AND id = u_id) as name,
+            (select start_date from  {learning_training} where id =t_id)as date1,
+            (select end_date from {learning_training} where id =t_id) as date2
+            from {learning_plan_training} lpt
+            inner join {learning_user_trainingplan} lut on lut.lpt_id=lpt.id  where lpt.lp_id=? AND lut.u_id=?';
+            //ORDER BY $orderby';
     $inc= 0;
     $rs = $DB->get_recordset_sql($sql, array($lp_id, $u_id));
     foreach ($rs as $log) {
         $row = array();
         $row[] = ++$inc;
-        $row[] = $log->training;
+        if(strlen($log->url)>0) {
+            $row[] = '<a title="'.get_string('training','block_learning_plan').'" href="'.$log->url.'">'.format_string($log->training, false).'</a>';
+        } else {
+            $row[] = format_string($log->training, false);
+        }
         $row[] = $log->name;
-        $row[] = date('d-m-Y', $log->date1);
-        $row[] = date('d-m-Y', $log->date2);
+        $row[] = userdate($log->date1,get_string('strftimedatefullshort','core_langconfig')); //date('d-m-Y', $log->date1);
+        $row[] = userdate($log->date2,get_string('strftimedatefullshort','core_langconfig')); //date('d-m-Y', $log->date2);
         $row[] = status_value($log->status) ;
-        $row[] = $log->remarks;
+        $row[] = format_string($log->remarks, false);
         $table->data[] = $row;
     }
     return $table;
@@ -157,7 +168,16 @@ function nav_title($viewpage) {
         4 => get_string('assign_training_learningplan', 'block_learning_plan'),
         5 => get_string('assign_learningplan_user', 'block_learning_plan'),
         6 => get_string('trainingstatus', 'block_learning_plan'),
-        7 => get_string('search', 'block_learning_plan'),               
+        7 => get_string('search', 'block_learning_plan'),
     );
     return $array[$viewpage];
+}
+
+function format_string_array($arr, $striplinks = true, $options = null ) {
+    if (!empty($arr)) {
+        foreach ($arr as $key => $value) {
+            $arr[$key] = format_string($value,$striplinks, $options);
+        }
+    }
+    return $arr;
 }

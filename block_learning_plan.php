@@ -15,16 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /* Learning Plan Block
- * This plugin serves as a database and plan for all learning activities in the organziation, 
+ * This plugin serves as a database and plan for all learning activities in the organziation,
  * where such activities are organized for a more structured learning program.
  * @package blocks
- * @author: Azmat Ullah, Talha Noor
+ * @author: Azmat Ullah, Talha Noor, Michael Milette (Instrux Media)
  * @date: 20-Sep-2013
  * @copyright  Copyrights © 2012 - 2013 | 3i Logic (Pvt) Ltd.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once('lib.php');
+require_once(realpath(dirname(__FILE__).'/lib.php'));
 class block_learning_plan extends block_base {
     public function init() {
         global $CFG, $USER, $COURSE;
@@ -39,9 +39,9 @@ class block_learning_plan extends block_base {
             $this->title = get_string('learning_plan', 'block_learning_plan');
         } else if (has_capability('block/learning_plan:viewpages', $this->context)) {
             $this->title = get_string('myview', 'block_learning_plan');
-        }  
+        }
         $this->content =  new stdClass;
-        
+
         if (has_capability('block/learning_plan:managepages', $this->context)) {
             $pageurl = new moodle_url('/blocks/learning_plan/view.php?viewpage');
             if (!strpos($pageurl,'=')) {
@@ -58,22 +58,15 @@ class block_learning_plan extends block_base {
             if (!strpos($pageurl,'=')) {
                 $pageurl .= '=';
             }
-            // $learning_plan=user_learningplan($USER->id);
-            $learning_plan=$DB->get_recordset_sql('SELECT lp_id as id, (select  learning_plan  from {learning_learningplan} where id =lp_id) as learningplan FROM {learning_user_learningplan} where u_id = ?', array($USER->id));
-
+            $learning_plan=user_learningplan($USER->id);
+//            $learning_plan=$DB->get_recordset_sql('SELECT lp_id as id, (select learning_plan from {learning_learningplan} where id =lp_id) as learningplan FROM {learning_user_learningplan} where u_id = ?', array($USER->id));
             foreach($learning_plan as $lp) {
-                $this->content->text .= html_writer::link($pageurl.$lp->id, $lp->learningplan).'<br>';
+                $this->content->text .= html_writer::link($pageurl.$lp->id, format_string($lp->learningplan, false)).'<br>';
             }
         }
-    return $this->content;
+        return $this->content;
     }
     public function applicable_formats() {
-  return array(
-           'site-index' => true,
-          'course-view' => false, 
-   'course-view-social' => false,
-                  'mod' => false, 
-             'mod-quiz' => false
-  );
-}
+        return array('all' => true);
+    }
 }

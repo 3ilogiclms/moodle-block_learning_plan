@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /* Learning Plan Block
- * This plugin serves as a database and plan for all learning activities in the organziation, 
+ * This plugin serves as a database and plan for all learning activities in the organziation,
  * where such activities are organized for a more structured learning program.
  * @package blocks
- * @author: Azmat Ullah, Talha Noor
+ * @author: Azmat Ullah, Talha Noor, Michael Milette (Instrux Media)
  * @date: 20-Sep-2013
  * @copyright  Copyrights © 2012 - 2013 | 3i Logic (Pvt) Ltd.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -27,35 +27,38 @@
 require_once('../../config.php');
 $setting = null;
 $row = array();
+
 require_once('learning_plan_form.php');
 require_once('lib.php');
 require_once("{$CFG->libdir}/formslib.php");
+
 global $DB, $USER, $OUTPUT, $PAGE, $CFG;
 $viewpage = required_param('viewpage', PARAM_INT);
 $rem = optional_param('rem', null, PARAM_RAW);
 $edit = optional_param('edit', null, PARAM_RAW);
 $delete = optional_param('delete', null, PARAM_RAW);
 $id = optional_param('id', null, PARAM_INT);
-
-require_login();
-$context = context_system::instance();
-        if (!has_capability('block/learning_plan:managepages', $context)) {
-		        redirect($CFG->wwwroot);
-
-}
-$context = context_system::instance();
-$PAGE->set_context($context);
-$PAGE->set_url('/blocks/learning_plan/view.php');
-$PAGE->set_pagelayout('standard');
-$PAGE->set_heading('Learning Plan');
-$PAGE->set_title('Learning Plan');
+$lp = optional_param('lp', null, PARAM_INT);
 $pageurl = new moodle_url('/blocks/learning_plan/view.php?viewpage='.$viewpage);
 $learningplan_url = new moodle_url('/blocks/learning_plan/view.php?viewpage=1');
 $nav_title = nav_title($viewpage);
+
+require_login();
+$context = context_system::instance();
+if (!has_capability('block/learning_plan:managepages', $context)) {
+    redirect($CFG->wwwroot);
+
+}
+$PAGE->set_context($context);
+$PAGE->set_url($pageurl);
+$PAGE->set_pagelayout('standard');
+$PAGE->set_heading(get_string('learning_plan','block_learning_plan'));
+$PAGE->set_title(get_string('learning_plan','block_learning_plan'));
 $PAGE->navbar->ignore_active();
 $PAGE->navbar->add(get_string("pluginname", 'block_learning_plan'), new moodle_url($learningplan_url));
 $PAGE->navbar->add($nav_title);
 echo $OUTPUT->header();
+
 $table = new html_table();
 $table->head  = array('<a href="'.$CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=1">'.get_string('learningpath', 'block_learning_plan').'</a>',
                       '<a href="'.$CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=2">'.get_string('add_training', 'block_learning_plan').'</a>',
@@ -85,7 +88,7 @@ if ($viewpage == 1) { // Add Learning Plans.
 
       // Delete Record.
     if($rem) {
-        echo $OUTPUT->confirm(get_string('plan_delete', 'block_learning_plan'), 
+        echo $OUTPUT->confirm(get_string('plan_delete', 'block_learning_plan'),
                                      '/blocks/learning_plan/view.php?viewpage=1&rem=rem&delete='.$id, '/blocks/learning_plan/view.php?viewpage=1');
         if($delete) {
             delete_learningplan_record('learning_learningplan', $delete, $pageurl);
@@ -112,7 +115,7 @@ if ($viewpage == 1) { // Add Learning Plans.
     }
     // Delete Record.
     if($rem) {
-        echo $OUTPUT->confirm(get_string('training_delete', 'block_learning_plan'), 
+        echo $OUTPUT->confirm(get_string('training_delete', 'block_learning_plan'),
                                          '/blocks/learning_plan/view.php?viewpage=2&rem=rem&delete='.$id, '/blocks/learning_plan/view.php?viewpage=2');
         if($delete) {
             delete_learningplan_record('learning_training', $delete, $pageurl);
@@ -174,13 +177,14 @@ if ($viewpage == 1) { // Add Learning Plans.
     }
     // Delete Record.
     if($rem) {
-        echo $OUTPUT->confirm(get_string('record_delete', 'block_learning_plan'), '/blocks/learning_plan/view.php?viewpage=4&rem=rem&delete='.$id,
+        echo $OUTPUT->confirm(get_string('record_delete', 'block_learning_plan'), '/blocks/learning_plan/view.php?viewpage=4&rem=rem&delete='.$id.'&id='.$lp,
                                          '/blocks/learning_plan/view.php?viewpage=4');
         if($delete) {
-            delete_learningplan_record('learning_plan_training', $delete, $pageurl);
+            delete_learningplan_record('learning_plan_training', $delete, $pageurl, $id);
         }
     }
 } else if ($viewpage == 5) { // Assign Learning plan to User.
+
     $form = new assignlerningplan_user_form();
 
     if($fromform = $form->get_data()) {
@@ -194,6 +198,9 @@ if ($viewpage == 1) { // Add Learning Plans.
             $record2 = new stdClass();
             $record->lp_id = $fromform->l_id;
             $record->assignee_id = $USER->id;
+            $record->status = '1'; // Not Yet Started;
+            $attributes = array(get_string('status_in_progress','block_learning_plan'), get_string('status_not_started','block_learning_plan'), get_string('status_completed','block_learning_plan'), get_string('status_all','block_learning_plan'));
+            $record2->status = $record->status;
             foreach ($fromform->u_id as $formtid) {
                 $record->u_id         = $formtid;
                 $training = learningplan_training($fromform->l_id);
@@ -203,18 +210,18 @@ if ($viewpage == 1) { // Add Learning Plans.
                      // Insert in learning_user_trainingplan
                      $DB->insert_record('learning_user_trainingplan', $record2);
                 }
-                    // Insert in learning_user_learningplan
-                    $DB->insert_record('learning_user_learningplan', $record);
+                // Insert in learning_user_learningplan
+                $DB->insert_record('learning_user_learningplan', $record);
             }
         }
-           redirect($pageurl);
+        redirect($pageurl);
     }
     // Delete Record.
     if($rem) {
         echo $OUTPUT->confirm(get_string('record_delete', 'block_learning_plan'),
-                                         '/blocks/learning_plan/view.php?viewpage=5&rem=rem&delete='.$id, '/blocks/learning_plan/view.php?viewpage=5');
+                                         '/blocks/learning_plan/view.php?viewpage=5&rem=rem&delete='.$id.'&id='.$lp, '/blocks/learning_plan/view.php?viewpage=5');
         if($delete) {
-            delete_learningplan_record('learning_user_learningplan', $delete, $pageurl);
+            delete_learningplan_record('learning_user_learningplan', $delete, $pageurl, $id);
             // echo $pageurl;
         }
     }
@@ -229,7 +236,7 @@ if ($viewpage == 1) { // Add Learning Plans.
 
     }
 } else if ($viewpage == 7) {
-     $form = new search();
+    $form = new search();
 }
 
 // Set viewpage with form.

@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /* Learning Plan Block
- * This plugin serves as a database and plan for all learning activities in the organziation, 
+ * This plugin serves as a database and plan for all learning activities in the organziation,
  * where such activities are organized for a more structured learning program.
  * @package blocks
- * @author: Azmat Ullah, Talha Noor
+ * @author: Azmat Ullah, Talha Noor, Michael Milette (Instrux Media)
  * @date: 20-Sep-2013
  * @copyright  Copyrights © 2012 - 2013 | 3i Logic (Pvt) Ltd.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -38,8 +38,15 @@ $status = optional_param('status', null, PARAM_INT);  // $_GET['status'];
 $hidetraining = optional_param('hidetraining', null, PARAM_INT); // $_GET['hidetraining'];
 $hideusers = optional_param('hideusers', null, PARAM_INT); //$_GET['hideusers'];
 
-require_login(0, false);
-$PAGE->set_context(context_system::instance());
+if (!isloggedin()) {
+    die(get_string('loggedinnot'));
+}
+require_login(NULL, false);
+$context = context_system::instance();
+if (!has_capability('block/learning_plan:managepages', $context)) {
+    die(get_string('sitepartlist'));
+}
+$PAGE->set_context($context);
 $PAGE->set_url('/blocks/learning_plan/ajax_bridge.php');
 
 if($lp_id && $t_id) {
@@ -79,7 +86,7 @@ if($lp_id && $t_id) {
     }
     $data = "";
     foreach ($attributes as $key => $attrib) {
-        $data .= $key.'~'.$attrib .'^';
+        $data .= $key.'~'.format_string($attrib, false).'^';
     }
     return print_r($data);
 }

@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /* Learning Plan Block
- * This plugin serves as a database and plan for all learning activities in the organziation, 
+ * This plugin serves as a database and plan for all learning activities in the organziation,
  * where such activities are organized for a more structured learning program.
  * @package blocks
- * @author: Azmat Ullah, Talha Noor
+ * @author: Azmat Ullah, Talha Noor, Michael Milette (Instrux Media)
  * @date: 20-Sep-2013
  * @copyright  Copyrights © 2012 - 2013 | 3i Logic (Pvt) Ltd.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -32,9 +32,10 @@ class learningplan_form extends moodleform {
         $errors= array();
         $mform->addElement('header', 'displayinfo', get_string('learningpath', 'block_learning_plan'));
         $mform->addElement('text', 'learning_plan', get_string('learningplan', 'block_learning_plan'));
-        $mform->addRule('learning_plan', get_string('plan_format', 'block_learning_plan'), 'regex', '#^[A-Z0-9 ]+$#i', 'client');
+        // The following line prevents user from entering accented characters and multilingual markup. SetType changed from PARAM_RAW to PARAM_TEXT instead.
+        //$mform->addRule('learning_plan', get_string('plan_format', 'block_learning_plan'), 'regex', '#^[A-Z0-9 ]+$#i', 'client');
         $mform->addRule('learning_plan', $errors, 'required', null, 'server');
-        $mform->setType('learning_plan', PARAM_RAW);
+        $mform->setType('learning_plan', PARAM_TEXT);
         $attributes = array('rows' => '8', 'cols' => '40');
         $mform->addElement('textarea', 'description', get_string('desc', 'block_learning_plan'), $attributes);
         $mform->setType('description', PARAM_TEXT);
@@ -64,8 +65,8 @@ class learningplan_form extends moodleform {
         $dir     = optional_param('dir', 'DESC', PARAM_ALPHA);
 
         $changescount = $DB->count_records('learning_learningplan');
-        $columns = array('learning_plan'    => get_string('learning_plan', 'block_learning_plan'),
-                         'description'     => get_string('desc', 'block_learning_plan'), );
+        $columns = array('learning_plan' => get_string('learning_plan', 'block_learning_plan'),
+                         'description'   => get_string('desc', 'block_learning_plan'), );
         $hcolumns = array();
         if (!isset($columns[$sort])) {
             $sort = 'learning_plan';
@@ -95,7 +96,7 @@ class learningplan_form extends moodleform {
         $baseurl = new moodle_url('view.php?viewpage=1', array('sort' => $sort, 'dir' => $dir, 'perpage' => $perpage));
         echo $OUTPUT->paging_bar($changescount, $page, $perpage, $baseurl);
         $table = new html_table();
-        $table->head  = array(get_string('s_no', 'block_learning_plan'), $hcolumns['learning_plan'], $hcolumns['description'], 'Edit', 'Remove');
+        $table->head  = array(get_string('s_no', 'block_learning_plan'), $hcolumns['learning_plan'], $hcolumns['description'], get_string('edit'), get_string('remove'));
         $table->size  = array('10%', '35%', '35%');
         $table->align = array('center', 'left', 'left', 'center' , 'center', 'center');
         $table->width = '100%';
@@ -106,12 +107,12 @@ class learningplan_form extends moodleform {
         foreach ($rs as $log) {
             $row = array();
             $row[] = $inc++;
-            $row[] = $log->learning_plan;
-            $row[] = $log->description;
-            $row[] = '<center><center><a  title="Edit" href="'.$CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=1&edit=edit&id='.$log->id.'"/>
-                     <img src="'.$OUTPUT->pix_url('t/edit') . '" class="iconsmall" /></a></center>';
-            $row[] = '<center><center><a  title="Remove" href="'.$CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=1&rem=remove&id='.$log->id.'"/>
-                     <img src="'.$OUTPUT->pix_url('t/delete') . '" class="iconsmall"/></a></center>';
+            $row[] = format_string($log->learning_plan, false);
+            $row[] = format_string($log->description, false);
+            $row[] = '<center><center><a title="'.get_string('edit').'" href="'.$CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=1&edit=edit&id='.$log->id.'"/>
+                     <img alt="" src="'.$OUTPUT->pix_url('t/edit') . '" class="iconsmall" /></a></center>';
+            $row[] = '<center><center><a title="'.get_string('delete').'" href="'.$CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=1&rem=remove&id='.$log->id.'"/>
+                     <img alt="" src="'.$OUTPUT->pix_url('t/delete') . '" class="iconsmall"/></a></center>';
             $table->data[] = $row;
         }
             // $rs->close();
@@ -134,7 +135,8 @@ class training_form extends moodleform {
         $mform->addGroup($radioarray, 'type_id', get_string('training_method', 'block_learning_plan'), array('<br>'), false);
         $mform->addRule('type_id', $errors, 'required', null, 'server');
         $mform->addElement('text', 'training_name', get_string('training_name', 'block_learning_plan'));
-        $mform->addRule('training_name', get_string('training_format', 'block_learning_plan'), 'regex', '#^[A-Z0-9 ]+$#i', 'client');
+        // The following line prevents user from entering accented characters and multilingual markup. SetType PARAM_TEXT will handle validation instead.
+        //$mform->addRule('training_name', get_string('training_format', 'block_learning_plan'), 'regex', '#^[A-Z0-9 {}]+$#i', 'client');
         $mform->addRule('training_name', $errors, 'required', null, 'server');
         $mform->setType('training_name', PARAM_TEXT);
         // $attributes = array('maxbytes' => '4194304', 'accepted_types' => "*");
@@ -176,10 +178,10 @@ class training_form extends moodleform {
         $sort    = optional_param('sort', 'training_name', PARAM_ALPHA);
         $dir     = optional_param('dir', 'DESC', PARAM_ALPHA);
         $changescount = $DB->count_records('learning_training');
-        $columns = array('training_name'     => get_string('training_name', 'block_learning_plan'),
-                         'type_id'     => get_string('training_method', 'block_learning_plan'),
-                         'start_date'     => get_string('start_date', 'block_learning_plan'),
-                         'end_date'     => get_string('end_date', 'block_learning_plan'));
+        $columns = array('training_name' => get_string('training_name', 'block_learning_plan'),
+                         'type_id'       => get_string('training_method', 'block_learning_plan'),
+                         'start_date'    => get_string('start_date', 'block_learning_plan'),
+                         'end_date'      => get_string('end_date', 'block_learning_plan'));
         $hcolumns = array();
         if (!isset($columns[$sort])) {
             $sort = 'training_name';
@@ -208,7 +210,7 @@ class training_form extends moodleform {
         $baseurl = new moodle_url('view.php?viewpage=2', array('sort' => $sort, 'dir' => $dir, 'perpage' => $perpage));
         echo $OUTPUT->paging_bar($changescount, $page, $perpage, $baseurl);
         $table = new html_table();
-        $table->head  = array(get_string('s_no', 'block_learning_plan'), $hcolumns['training_name'], $hcolumns['type_id'], $hcolumns['start_date'], $hcolumns['end_date'], 'Edit', 'Remove');
+        $table->head  = array(get_string('s_no', 'block_learning_plan'), $hcolumns['training_name'], $hcolumns['type_id'], $hcolumns['start_date'], $hcolumns['end_date'], get_string('edit'), get_string('remove'));
         $table->size  = array('10%', '15%', '15%', '15%', '15%', '15%', '15%', '15%');
         $table->align = array('center', 'left', 'left', 'center', 'center', 'center', 'center');
         $table->width = '100%';
@@ -220,9 +222,9 @@ class training_form extends moodleform {
             $row = array();
             $row[] = $inc++;
             if(strlen($log->url)>0) {
-                $row[] = '<a  title="Training" href="'.$log->url.'">'.$log->training_name.'</a>';
+                $row[] = '<a title="'.get_string('training','block_learning_plan').'" href="'.$log->url.'">'.format_string($log->training_name, false).'</a>';
             } else {
-                $row[] = $log->training_name;
+                $row[] = format_string($log->training_name, false);
             }
             $training_method;
             if ($log->type_id == 1) {
@@ -232,16 +234,14 @@ class training_form extends moodleform {
             } else if ($log->type_id == 3) {
                 $training_method= get_string('onthejob', 'block_learning_plan');
             }
-            $row[] = $training_method;
-            // $row[] = date('d-m-Y', $log->start_date);
-            $row[] = date('M j, Y, g:i a', $log->start_date);
-            $row[] = date('M j, Y, g:i a', $log->end_date);
-            // $row[] = date('d-m-Y', $log->end_date);
+            $row[] = format_string($training_method, false);
+            $row[] = userdate($log->start_date,get_string('strftimedatetime','core_langconfig')); //date('M j, Y, g:i a', $log->start_date);
+            $row[] = userdate($log->end_date,get_string('strftimedatetime','core_langconfig'));   //date('M j, Y, g:i a', $log->end_date);
             // $row[] = "<a href=".$log->url."/>Link</a>";
-            $row[] = '<center><center><a  title="Edit" href="'.$CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=2&edit=edit&id='.$log->id.'"/>
-                     <img src="'.$OUTPUT->pix_url('t/edit') . '" class="iconsmall" /></a></center>';
-            $row[] = '<center><center><a  title="Remove" href="'.$CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=2&rem=remove&id='.$log->id.'"/>
-                     <img src="'.$OUTPUT->pix_url('t/delete') . '" class="iconsmall"/></a></center>';
+            $row[] = '<center><center><a title="'.get_string('edit').'" href="'.$CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=2&edit=edit&id='.$log->id.'"/>
+                     <img alt="" src="'.$OUTPUT->pix_url('t/edit') . '" class="iconsmall" /></a></center>';
+            $row[] = '<center><center><a title="'.get_string('remove').'" href="'.$CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=2&rem=remove&id='.$log->id.'"/>
+                     <img alt="" src="'.$OUTPUT->pix_url('t/delete') . '" class="iconsmall"/></a></center>';
             $table->data[] = $row;
         }
             //$rs->close();
@@ -283,10 +283,10 @@ class assigntraining_learningplan__form extends moodleform {
         $mform =& $this->_form;
         $mform->addElement('header', 'displayinfo', get_string('assign_training_learningplan', 'block_learning_plan'));
         $attributes = $DB->get_records_sql_menu('SELECT id, learning_plan FROM {learning_learningplan}', null, $limitfrom=0, $limitnum=0);
-        $mform->addElement('selectwithlink', 'l_id', get_string('learningplan', 'block_learning_plan'), $attributes, null,
+        $mform->addElement('selectwithlink', 'l_id', get_string('learningplan', 'block_learning_plan'), format_string_array($attributes, false), null,
                             array('link' => $CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=1', 'label' => get_string('add_learningplan', 'block_learning_plan')));
         $attributes = $DB->get_records_sql_menu('SELECT id, training_name FROM {learning_training}', null, $limitfrom=0, $limitnum=0);
-        $select = $mform->addElement('selectwithlink', 't_id', get_string('training', 'block_learning_plan'), $attributes, null,
+        $select = $mform->addElement('selectwithlink', 't_id', get_string('training', 'block_learning_plan'), format_string_array($attributes, false), null,
                                      array('link' => $CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=2', 'label' => get_string('add_training', 'block_learning_plan')));
         $select->setmultiple(true);
         $mform->addElement('hidden', 'viewpage');
@@ -306,8 +306,8 @@ class assigntraining_learningplan__form extends moodleform {
         $dir     = optional_param('dir', 'DESC', PARAM_ALPHA);
 
         $changescount = $DB->count_records('learning_learningplan');
-        $columns = array('learning_plan'    => get_string('learning_plan', 'block_learning_plan'),
-                         'training_name'     => get_string('training_name', 'block_learning_plan'),
+        $columns = array('learning_plan' => get_string('learning_plan', 'block_learning_plan'),
+                         'training_name' => get_string('training_name', 'block_learning_plan'),
                         );
         $hcolumns = array();
         if (!isset($columns[$sort])) {
@@ -338,22 +338,23 @@ class assigntraining_learningplan__form extends moodleform {
         $baseurl = new moodle_url('view.php?viewpage=4', array('sort' => $sort, 'dir' => $dir, 'perpage' => $perpage));
         echo $OUTPUT->paging_bar($changescount, $page, $perpage, $baseurl);
         $table = new html_table();
-        $table->head  = array(get_string('s_no', 'block_learning_plan'), $hcolumns['learning_plan'], $hcolumns['training_name'], 'Remove');
+        $table->head  = array(get_string('s_no', 'block_learning_plan'), $hcolumns['learning_plan'], $hcolumns['training_name'], get_string('remove'));
         $table->size  = array('10%', '35%', '35%', '35%');
         $table->align = array('center', 'left', 'left', 'center');
         $table->width = '100%';
         $orderby = "$sort $dir";
-        $sql = "SELECT id, (select learning_plan from {learning_learningplan}  where id=lp_id) as learning_plan, (select training_name from {learning_training} where id=t_id)
-                as training_name from {learning_plan_training}  ORDER BY $orderby ";
+        $sql = "SELECT id, (select learning_plan from {learning_learningplan} where id=lp_id) as learning_plan,
+               (select training_name from {learning_training} where id=t_id) as training_name
+               from {learning_plan_training} ORDER BY $orderby ";
         $inc= 1;
         $rs = $DB->get_recordset_sql($sql, array(),  $page*$perpage, $perpage);
         foreach ($rs as $log) {
             $row = array();
             $row[] = $inc++;
-            $row[] = $log->learning_plan;
-            $row[] = $log->training_name;
-            $row[] = '<center><center><a  title="Remove" href="'.$CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=4&rem=remove&id='.$log->id.'"/>
-                     <img src="'.$OUTPUT->pix_url('t/delete') . '" class="iconsmall"/></a></center>';
+            $row[] = format_string($log->learning_plan, false);
+            $row[] = format_string($log->training_name, false);
+            $row[] = '<center><center><a title="'.get_string('remove').'" href="'.$CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=4&rem=remove&id='.$log->id.'"/>
+                     <img alt="" src="'.$OUTPUT->pix_url('t/delete') . '" class="iconsmall"/></a></center>';
             $table->data[] = $row;
         }
             // $rs->close();
@@ -368,10 +369,10 @@ class assignlerningplan_user_form extends moodleform {
         if (!isset($attributes1)) $attributes1 = "";
         $mform->addElement('header', 'displayinfo', get_string('assign_learningplan_user', 'block_learning_plan'));
         $attributes = $DB->get_records_sql_menu('SELECT id, learning_plan FROM {learning_learningplan}', null, $limitfrom=0, $limitnum=0);
-        $mform->addElement('selectwithlink', 'l_id', get_string('learningplan', 'block_learning_plan'), $attributes, null,
+        $mform->addElement('selectwithlink', 'l_id', get_string('learningplan', 'block_learning_plan'), format_string_array($attributes), null,
                            array('link' => $CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=1', 'label' => get_string('add_learningplan', 'block_learning_plan')));
         $attributes =  $DB->get_records_sql_menu('SELECT id, CONCAT(firstname," ", lastname)FROM {user} where username!="guest"', array ($params=null), $limitfrom=0, $limitnum=0);
-        $select = $mform->addElement('select', 'u_id', get_string('users', 'block_learning_plan'), $attributes, null,
+        $select = $mform->addElement('select', 'u_id', get_string('users', 'block_learning_plan'), format_string_array($attributes, false), null,
                                      array('link' => $CFG->wwwroot.'/user/editadvanced.php?id=-1', 'label' => get_string('addusers', 'block_learning_plan'), $attributes1));
         $select->setMultiple(true);
         // $mform->addElement('hidden', 'assignee', $USER->id);
@@ -392,19 +393,21 @@ class assignlerningplan_user_form extends moodleform {
         $table->align = array('center', 'left', 'left', 'left');
         $table->width = '100%';
         $table->data  = array();
-        $sql = 'SELECT id, (SELECT concat(firstname," ", lastname) FROM {user} WHERE id = u_id) as fullname, (SELECT learning_plan
-                FROM {learning_learningplan} WHERE id = lp_id) as learning_plan, (SELECT concat(firstname," ", lastname) FROM 
-                {user} WHERE id = assignee_id) as assignee FROM {learning_user_learningplan}'; // ORDER BY $orderby';
+        $sql = 'SELECT u_id, lp_id,
+               (SELECT concat(firstname," ", lastname) FROM {user} WHERE id = u_id) as fullname,
+               (SELECT learning_plan FROM {learning_learningplan} WHERE id = lp_id) as learning_plan,
+               (SELECT concat(firstname," ", lastname) FROM {user} WHERE id = assignee_id) as assignee
+               FROM {learning_user_learningplan}'; // ORDER BY $orderby';
         $inc= 0;
         $rs = $DB->get_recordset_sql($sql, array());
         foreach ($rs as $log) {
             $row = array();
             $row[] = ++$inc;
-            $row[] = $log->learning_plan;
+            $row[] = format_string($log->learning_plan, false);
             $row[] = $log->fullname;
             $row[] = $log->assignee;
-            $row[] = '<center><center><a title="Remove" href="'.$CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=5&rem=remove&id='.$log->id.'"/>
-                     <img src="'.$OUTPUT->pix_url('t/delete') . '" class="iconsmall"/></a></center>';
+            $row[] = '<center><center><a title="'.get_string('remove').'" href="'.$CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=5&rem=remove&id='.$log->u_id.'&lp='.$log->lp_id.'"/>
+                     <img alt="" src="'.$OUTPUT->pix_url('t/delete') . '" class="iconsmall"/></a></center>';
             $table->data[] = $row;
         }
         return $table;
@@ -419,42 +422,54 @@ class trainingstatus_form extends moodleform {
         $t_id = optional_param('t_id', null, PARAM_INT);
         $mform =& $this->_form;
         $mform->addElement('header', 'displayinfo', get_string('trainingstatus', 'block_learning_plan'));
+
+        // List of Learning Plans
         if(isset($l_id)) {
             $attributes = $DB->get_records_sql_menu('SELECT id, learning_plan FROM {learning_learningplan} where id=?', array($l_id), $limitfrom=0, $limitnum=0);
         }
         else {
             $attributes = $DB->get_records_sql_menu('SELECT id, learning_plan FROM {learning_learningplan}', null, $limitfrom=0, $limitnum=0);
         }
-        $mform->addElement('selectwithlink', 'l_id', get_string('learningplan', 'block_learning_plan'), $attributes, null,
+        $mform->addElement('selectwithlink', 'l_id', get_string('learningplan', 'block_learning_plan'), format_string_array($attributes, false), null,
                            array('link' => $CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=1', 'label' => get_string('add_learningplan', 'block_learning_plan')));
+
+        // List of Users
         if(isset($u_id)) {
-            $attributes =  $DB->get_records_sql_menu('SELECT id, CONCAT(firstname," ", lastname)FROM {user} where username!="guest" AND id=?', 
+            $attributes = $DB->get_records_sql_menu('SELECT id, CONCAT(firstname," ", lastname)FROM {user} where username!="guest" AND id=?',
                                                     array ($u_id), $limitfrom=0, $limitnum=0);
         }
         else {
-            $attributes =  $DB->get_records_sql_menu('SELECT id, CONCAT(firstname," ", lastname)FROM {user} where username!="guest"', 
+            $attributes = $DB->get_records_sql_menu('SELECT id, CONCAT(firstname," ", lastname)FROM {user} where username!="guest"',
                                                      array ($params=null), $limitfrom=0, $limitnum=0);
         }
-        $mform->addElement('selectwithlink', 'u_id', get_string('users', 'block_learning_plan'), $attributes, null,
+        $mform->addElement('selectwithlink', 'u_id', get_string('users', 'block_learning_plan'), format_string_array($attributes, false), null,
                            array('link' => $CFG->wwwroot."/user/editadvanced.php?id=-1", 'label' => get_string('addusers', 'block_learning_plan')));
+
+        // List of Trainings
         if(isset($t_id)) {
             $attributes = $DB->get_records_sql_menu('SELECT id, training_name FROM {learning_training} where id=?', array($t_id), $limitfrom=0, $limitnum=0);
         }
         else {
             $attributes = $DB->get_records_sql_menu('SELECT id, training_name FROM {learning_training}', null, $limitfrom=0, $limitnum=0);
         }
-        $mform->addElement('selectwithlink', 't_id', get_string('training', 'block_learning_plan'), $attributes, null,
+        $mform->addElement('selectwithlink', 't_id', get_string('training', 'block_learning_plan'), format_string_array($attributes, false), null,
                            array('link' => $CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=2', 'label' => get_string('add_training', 'block_learning_plan')));
-        $attributes = array('In-progress', 'Not Yet Started', 'Complete');
+
+        // List of status options
+        $attributes = array(get_string('status_in_progress','block_learning_plan'), get_string('status_not_started','block_learning_plan'), get_string('status_completed','block_learning_plan'));
         $mform->addElement('select', 'status', get_string('status', 'block_learning_plan'), $attributes);
+
+        // Remarks
         $attributes = array('size' => '50', 'maxlength' => '1000');
         $mform->addElement('text', 'remarks', get_string('remarks', 'block_learning_plan'), $attributes);
         $mform->setType('remarks', PARAM_TEXT);
+
         $mform->addElement('hidden', 'viewpage');
         $mform->setType('viewpage', PARAM_INT);
+
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
-        // $this->add_action_buttons();
+
         $this->add_action_buttons($cancel = false);
     }
 
@@ -469,18 +484,18 @@ class search extends moodleform {
         $mform =& $this->_form;
         $mform->addElement('header', 'displayinfo', get_string('searchusers', 'block_learning_plan'));
         $attributes = $DB->get_records_sql_menu('SELECT id, learning_plan FROM {learning_learningplan}', null, $limitfrom=0, $limitnum=0);
-        $mform->addElement('selectwithlink', 'l_id', get_string('learningplan', 'block_learning_plan'), $attributes, null,
+        $mform->addElement('selectwithlink', 'l_id', get_string('learningplan', 'block_learning_plan'), format_string_array($attributes, false), null,
                            array('link' => $CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=1', 'label' => get_string('add_learningplan', 'block_learning_plan')));
         $attributes = $DB->get_records_sql_menu('SELECT id, training_name FROM {learning_training}', null, $limitfrom=0, $limitnum=0);
-        $mform->addElement('selectwithlink', 't_id', get_string('training', 'block_learning_plan'), $attributes, null,
+        $mform->addElement('selectwithlink', 't_id', get_string('training', 'block_learning_plan'), format_string_array($attributes, false), null,
                            array('link' => $CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=2', 'label' => get_string('add_training', 'block_learning_plan')));
-        $attributes = array('In-progress', 'Not Yet Started', 'Complete', 'All Status');
+        $attributes = array(get_string('status_in_progress','block_learning_plan'), get_string('status_not_started','block_learning_plan'), get_string('status_completed','block_learning_plan'), get_string('status_all','block_learning_plan'));
         $mform->addElement('select', 'status', get_string('status', 'block_learning_plan'), $attributes);
         $mform->addElement('hidden', 'viewpage');
         $mform->setType('viewpage', PARAM_INT);
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
-        $mform->addElement('button', 'showuser', 'Search', array("id" => "btnajax"));
+        $mform->addElement('button', 'showuser', get_string('search'), array("id" => "btnajax"));
     }
     public function display_list($lp_id = "", $t_id = "", $status = "") {
         // if ($lp_id && $t_id) {
@@ -494,36 +509,44 @@ class search extends moodleform {
         $table->align = array('center', 'left', 'left', 'center', 'center', 'center', 'left', 'left', 'center');
         $table->width = '100%';
         $table->data  = array();
-        if($status == '3') {
-        $sql = 'select  t_id, lp_id, lut.status, lut.remarks, `u_id` as id,(select training_name from  {learning_training} where id =t_id)
-                as training,(select learning_plan from   {learning_learningplan} where id =lp_id) as learning_plan, (SELECT
-                CONCAT(firstname," ", lastname)FROM {user} where username!="guest" AND id = u_id) as name,(select
-                start_date from  {learning_training} where id =t_id)as date1,(select end_date from  {learning_training}
-                where id =t_id)as date2 from {learning_plan_training} lpt inner join {learning_user_trainingplan} lut
-                on lut.lpt_id=lpt.id  where lpt.lp_id=?  AND lpt.t_id= ?'; // ORDER BY $orderby';
+        if($status == '3') { // All Status
+            $sql = 'select  t_id, lp_id, lut.status, lut.remarks, `u_id` as id,
+                   (select training_name from {learning_training} where id =t_id) as training,
+                   (select learning_plan from {learning_learningplan} where id =lp_id) as learning_plan,
+                   (SELECT CONCAT(firstname," ", lastname)FROM {user} where username!="guest" AND id = u_id) as name,
+                   (select start_date from {learning_training} where id =t_id) as date1,
+                   (select end_date from {learning_training} where id =t_id) as date2
+                   from {learning_plan_training}
+                   lpt inner join {learning_user_trainingplan} lut on lut.lpt_id=lpt.id where lpt.lp_id=? AND lpt.t_id= ?'; // ORDER BY $orderby';
         } else {
-        $sql = 'select  t_id, lp_id, lut.status, lut.remarks, `u_id` as id,(select training_name from  {learning_training} where id =t_id)
-                as training,(select learning_plan from   {learning_learningplan} where id =lp_id) as learning_plan, (SELECT
-                CONCAT(firstname," ", lastname)FROM {user} where username!="guest" AND id = u_id) as name,(select
-                start_date from  {learning_training} where id =t_id)as date1,(select end_date from  {learning_training}
-                where id =t_id)as date2 from {learning_plan_training} lpt inner join {learning_user_trainingplan} lut
-                on lut.lpt_id=lpt.id  where lpt.lp_id=?  AND lpt.t_id= ? AND lut.status = ?'; // ORDER BY $orderby';
+            $sql = 'select  t_id, lp_id, lut.status, lut.remarks, `u_id` as id,
+                   (select training_name from {learning_training} where id =t_id) as training,
+                   (select learning_plan from {learning_learningplan} where id =lp_id) as learning_plan,
+                   (SELECT CONCAT(firstname," ", lastname)FROM {user} where username!="guest" AND id = u_id) as name,
+                   (select start_date from {learning_training} where id =t_id) as date1,
+                   (select end_date from {learning_training} where id =t_id)as date2
+                   from {learning_plan_training}
+                   lpt inner join {learning_user_trainingplan} lut on lut.lpt_id=lpt.id where lpt.lp_id=? AND lpt.t_id= ? AND lut.status = ?'; // ORDER BY $orderby';
         }
         $inc = 0;
         $rs = $DB->get_recordset_sql($sql, array($lp_id, $t_id, $status));
-        foreach ($rs as $log) {
-            $row = array();
-            $row[] = ++$inc;
-            $row[] = $log->training;
-            $row[] = $log->name;
-            $row[] = date('d-m-Y', $log->date1);
-            $row[] = date('d-m-Y', $log->date2);
-            $row[] = status_value($log->status) ;
-            $row[] = $log->remarks;
-            $row[] = '<a href="'.$CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=6&l_id='.$log->lp_id.'&u_id='.$log->id.'&t_id='.$log->t_id.'&setting=1">Setting</a>';
-            // $row[] = '<center><center><a title="Remove" href="'.$CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=5&rem=remove&id='.$log->id.'"/>
-            // <img src="'.$OUTPUT->pix_url('t/delete') . '" class="iconsmall"/></a></center>';
-            $table->data[] = $row;
+        if (count($rs)>0) {
+            foreach ($rs as $log) {
+                $row = array();
+                $row[] = ++$inc;
+                $row[] = format_string($log->training, false);
+                $row[] = $log->name;
+                $row[] = userdate($log->date1,get_string('strftimedatefullshort','core_langconfig')); //date('d-m-Y', $log->date1);
+                $row[] = userdate($log->date2,get_string('strftimedatefullshort','core_langconfig')); //date('d-m-Y', $log->date2);
+                $row[] = status_value($log->status) ;
+                $row[] = format_string($log->remarks, false);
+                $row[] = '<a href="'.$CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=6&l_id='.$log->lp_id.'&u_id='.$log->id.'&t_id='.$log->t_id.'&setting=1">'.get_string('setting','block_learning_plan').'</a>';
+                // $row[] = '<center><center><a title="'.get_string('remove').'" href="'.$CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=5&rem=remove&id='.$log->id.'"/>
+                // <img alt="" src="'.$OUTPUT->pix_url('t/delete') . '" class="iconsmall"/></a></center>';
+                $table->data[] = $row;
+            }
+        } else {
+            $row = array('None');
         }
         return $table;
     }
