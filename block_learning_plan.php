@@ -41,6 +41,7 @@ class block_learning_plan extends block_base {
             $this->title = get_string('myview', 'block_learning_plan');
         }  
         $this->content =  new stdClass;
+        $this->content->text = "";
         
         if (has_capability('block/learning_plan:managepages', $this->context)) {
             $pageurl = new moodle_url('/blocks/learning_plan/view.php?viewpage');
