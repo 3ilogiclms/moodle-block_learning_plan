@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -30,6 +29,7 @@ require_once('learning_plan_form.php');
 require_once('lib.php');
 require_once("{$CFG->libdir}/formslib.php");
 global $DB, $USER, $OUTPUT, $PAGE, $CFG;
+
 $viewpage = required_param('viewpage', PARAM_INT);
 $rem = optional_param('rem', null, PARAM_RAW);
 $edit = optional_param('edit', null, PARAM_RAW);
@@ -37,9 +37,22 @@ $delete = optional_param('delete', null, PARAM_RAW);
 $id = optional_param('id', null, PARAM_INT);
 $u_id = optional_param('id', null, PARAM_INT);
 $lp = optional_param('lp', null, PARAM_INT);
-$pageurl = new moodle_url('/blocks/learning_plan/view.php?viewpage=' . $viewpage);
+$pageurl = new moodle_url('/blocks/learning_plan/view.php', array('viewpage' => $viewpage));
 $learningplan_url = new moodle_url('/blocks/learning_plan/view.php?viewpage=1');
 $nav_title = nav_title($viewpage);
+?>
+
+<link rel="stylesheet" type="text/css" href="<?php echo $CFG->wwwroot ?>/blocks/learning_plan/css/jquery.dataTables.css">
+<script type="text/javascript" language="javascript" src="<?php echo $CFG->wwwroot ?>/blocks/learning_plan/js/jquery.js"></script>
+<script type="text/javascript" language="javascript" src="<?php echo $CFG->wwwroot ?>/blocks/learning_plan/js/jquery.dataTables.js"></script>
+<script type="text/javascript" language="javascript" class="init">
+    $(document).ready(function() {
+        $('.display').dataTable();
+        //"fnServerData":getRows();
+
+    });
+</script>
+<?php
 require_login();
 $context = context_system::instance();
 if (!has_capability('block/learning_plan:managepages', $context)) {
@@ -50,9 +63,6 @@ $PAGE->set_url($pageurl);
 $PAGE->set_pagelayout('standard');
 //$PAGE->set_heading('Learning Plan');
 //$PAGE->set_title('Learning Plan');
-$pageurl = new moodle_url('/blocks/learning_plan/view.php?viewpage=' . $viewpage);
-$learningplan_url = new moodle_url('/blocks/learning_plan/view.php?viewpage=1');
-$nav_title = nav_title($viewpage);
 $PAGE->set_heading(get_string('learning_plan', 'block_learning_plan'));
 $PAGE->set_title(get_string('learning_plan', 'block_learning_plan'));
 $PAGE->navbar->ignore_active();
@@ -75,14 +85,14 @@ if ($viewpage == 1) { // Add Learning Plans.
     $form = new learningplan_form();
     // Insert or Update data - Save button Click.
     if ($fromform = $form->get_data()) {
-        // print_object($fromform);
         if ($fromform->id) {
             $DB->update_record('learning_learningplan', $fromform);
+            redirect($pageurl, get_string('updated', 'block_learning_plan'), 2);
         } else {
             // Insert Record
             $DB->insert_record('learning_learningplan', $fromform);
+            redirect($pageurl, get_string('saved', 'block_learning_plan'), 2);
         }
-        redirect($pageurl);
     }
     // Delete Record.
     if ($rem) {
@@ -100,15 +110,15 @@ if ($viewpage == 1) { // Add Learning Plans.
 } else if ($viewpage == 2) { // Add Training Types.
     $form = new training_form();
     if ($fromform = $form->get_data()) {
-        // print_object($fromform);
         if ($fromform->id) {
             // Update Record
             $DB->update_record('learning_training', $fromform);
+            redirect($pageurl, get_string('updated', 'block_learning_plan'), 2);
         } else {
             // Insert Record
             $DB->insert_record('learning_training', $fromform);
+            redirect($pageurl, get_string('saved', 'block_learning_plan'), 2);
         }
-        redirect($pageurl);
     }
     // Delete Record.
     if ($rem) {
@@ -123,15 +133,6 @@ if ($viewpage == 1) { // Add Learning Plans.
         $form = new training_form(null, array('id' => $get_learningplan->id));
         $form->set_data($get_learningplan);
     }
-    /*
-      // $fromform->save_file('$fromform', 'http://localhost/moodle/blocks/learning_plan/data/', null);
-      // echo $content;
-      // move_uploaded_file($fromform->attachment, "http://localhost/moodle/blocks/learning_plan/data/");
-      $name = $form->get_new_filename('attachment');
-      $importfile = "/data/{$name}";
-      $form->save_file('attachment', $importfile, true);
-      echo $importfile;
-     */
 } else if ($viewpage == 3) { // Add Training Method.
     $form = new trainingmethod_form();
 } else if ($viewpage == 4) { // Assign Training into Learning Plan.
@@ -166,7 +167,7 @@ if ($viewpage == 1) { // Add Learning Plans.
                 }
             }
         }
-        // redirect($pageurl);
+        redirect($pageurl, get_string('saved_changes', 'block_learning_plan'), 2);
     }
     // Delete Record.
     if ($rem) {
@@ -204,7 +205,7 @@ if ($viewpage == 1) { // Add Learning Plans.
                 $DB->insert_record('learning_user_learningplan', $record);
             }
         }
-        redirect($pageurl);
+        redirect($pageurl, get_string('saved', 'block_learning_plan'), 2);
     }
     // Delete Record.
     if ($rem) {
@@ -223,6 +224,7 @@ if ($viewpage == 1) { // Add Learning Plans.
         $status_id = status_id($fromform->l_id, $fromform->u_id, $fromform->t_id);
         $fromform->id = $status_id;
         $DB->update_record('learning_user_trainingplan', $fromform);
+        redirect($pageurl, get_string('saved_changes', 'block_learning_plan'), 2);
     }
 } else if ($viewpage == 7) {
     $form = new search();

@@ -1,10 +1,9 @@
 <?php
+
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
-
     'block/learning_plan:viewpages' => array(
-
         'captype' => 'read',
         'contextlevel' => CONTEXT_BLOCK,
         'legacy' => array(
@@ -17,20 +16,17 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         )
     ),
-   'block/learning_plan:addinstance' => array(
+    'block/learning_plan:addinstance' => array(
         'riskbitmask' => RISK_SPAM | RISK_XSS,
- 
         'captype' => 'write',
         'contextlevel' => CONTEXT_BLOCK,
         'archetypes' => array(
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
-            ),
- 
+        ),
         'clonepermissionsfrom' => 'moodle/site:manageblocks'
     ),
     'block/learning_plan:managepages' => array(
-
         'captype' => 'read',
         'contextlevel' => CONTEXT_BLOCK,
         'legacy' => array(

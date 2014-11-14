@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -28,6 +29,7 @@ function get_lpt_id($l_id, $t_id) {
     $lpt_id = $lpt_id->id;
     return $lpt_id;
 }
+
 function islp_assign_user($l_id) {
     global $DB;
     $return;
@@ -39,22 +41,26 @@ function islp_assign_user($l_id) {
     }
     return $return;
 }
+
 function get_learningplan_user($lp_id) {
     global $DB;
     $users = $DB->get_records('learning_user_learningplan', array('lp_id' => $lp_id));
     return $users;
 }
+
 function learningplan_training($lp_id) {
     global $DB;
     $training = $DB->get_records('learning_plan_training', array('lp_id' => $lp_id));
     return $training;
 }
+
 function user_learningplan($u_id) {
     global $DB;
     $training = $DB->get_recordset_sql('SELECT lp_id as id, (select  learning_plan  from {learning_learningplan} where id =lp_id) as learningplan
                                      FROM {learning_user_learningplan} where u_id = ?', array($u_id));
     return $training;
 }
+
 function status_value($status_id) {
     $status_value = '';
     if ($status_id == '0') {
@@ -66,6 +72,7 @@ function status_value($status_id) {
     }
     return $status_value;
 }
+
 function status_id($l_id, $u_id, $t_id) {
     global $DB;
     $status = $DB->get_record_sql('select lut.id as id from {learning_plan_training} lpt inner join {learning_user_trainingplan} lut
@@ -73,18 +80,21 @@ function status_id($l_id, $u_id, $t_id) {
     $status = $status->id;
     return $status;
 }
+
 // Return Learning Plan as String.
 function get_learningplan_name($id) {
     global $DB;
     $result = $DB->get_record_sql("SELECT learning_plan FROM {learning_learningplan} WHERE id = ?", array($id));
     return $result->learning_plan;
 }
+
 // Return User Full Name as String
 function get_user_name($id) {
     global $DB;
     $result = $DB->get_record_sql("SELECT concat (firstname,' ', lastname) as name FROM {user} WHERE id = ?", array($id));
     return $result->name;
 }
+
 function delete_learningplan_record($table, $id, $url, $lp_id = '') {
     global $DB;
     // Delete Department.
@@ -107,8 +117,9 @@ function delete_learningplan_record($table, $id, $url, $lp_id = '') {
             $DB->delete_records('learning_user_trainingplan', array('u_id' => $id, 'lpt_id' => $lpt->id));
         }
     }
-    redirect($url);
+    redirect($url, get_string('removed', 'block_learning_plan'), 2);
 }
+
 function display_list($lp_id, $u_id) {
     //  if ($lp_id && $t_id) {
     global $DB, $OUTPUT, $CFG;
@@ -117,7 +128,10 @@ function display_list($lp_id, $u_id) {
     $table->head = array(get_string('s_no', 'block_learning_plan'), get_string('training_name', 'block_learning_plan'), get_string('training_method', 'block_learning_plan'), get_string('start_date', 'block_learning_plan'), get_string('end_date', 'block_learning_plan'), get_string('status', 'block_learning_plan'), get_string('remarks', 'block_learning_plan'));
     $table->size = array('5%', '20%', '14%', '8%', '8%', '10%', '25%');
     $table->align = array('center', 'left', 'left', 'center', 'center', 'center', 'left');
+
     $table->width = '100%';
+    $table->attributes = array('class' => 'display');
+
     $table->data = array();
     $sql = 'select  t_id, (select type_id from  {learning_training} where id =t_id) as type_id, lp_id, lut.status, lut.remarks, `u_id` as id,(select training_name from  {learning_training} where id =t_id)
             as training, (select url from {learning_training} where id =t_id) as url, (select learning_plan from   {learning_learningplan} where id =lp_id) as learning_plan, (SELECT
@@ -155,6 +169,7 @@ function display_list($lp_id, $u_id) {
     }
     return $table;
 }
+
 function nav_title($viewpage) {
     $array = array(
         1 => get_string('learningpath', 'block_learning_plan'),
@@ -166,6 +181,7 @@ function nav_title($viewpage) {
     );
     return $array[$viewpage];
 }
+
 function training_type($type_id) {
     $training_type = '';
     if ($type_id == '1') {
@@ -177,6 +193,7 @@ function training_type($type_id) {
     }
     return $training_type;
 }
+
 function isGroup_null() {
     global $DB;
 //    $result = $DB->get_record_sql("SELECT concat (firstname,' ', lastname) as name FROM {user} WHERE id = ?",

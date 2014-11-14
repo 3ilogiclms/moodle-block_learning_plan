@@ -30,17 +30,19 @@ class learningplan_form extends moodleform {
 
     public function definition() {
         $mform = & $this->_form;
-        $errors = array();
+        if (!isset($errors))
+            $errors = array();
         $mform->addElement('header', 'displayinfo', get_string('learningpath', 'block_learning_plan'));
         $mform->addElement('text', 'learning_plan', get_string('learningplan', 'block_learning_plan'));
         // $mform->addRule('learning_plan', get_string('plan_format', 'block_learning_plan'), 'regex', '#^[A-Z0-9 ]+$#i', 'client');
-        $mform->addRule('learning_plan', $errors, 'required', null, 'server');
+        $mform->addRule('learning_plan', null, 'required', null, 'server');
         $mform->setType('learning_plan', PARAM_TEXT);
         $attributes = array('rows' => '8', 'cols' => '40');
         $mform->addElement('textarea', 'description', get_string('desc', 'block_learning_plan'), $attributes);
         $mform->setType('description', PARAM_TEXT);
         $mform->addElement('hidden', 'viewpage');
         $mform->setType('viewpage', PARAM_INT);
+
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
         $this->add_action_buttons($cancel = false);
@@ -60,47 +62,17 @@ class learningplan_form extends moodleform {
     public function display_list() {
         global $DB, $OUTPUT, $CFG;
         // Page parameters.
-        $page = optional_param('page', 0, PARAM_INT);
-        $perpage = optional_param('perpage', 10, PARAM_INT);    // how many per page
-        $sort = optional_param('sort', 'learning_plan', PARAM_ALPHA);
-        $dir = optional_param('dir', 'DESC', PARAM_ALPHA);
-        $changescount = $DB->count_records('learning_learningplan');
-        $columns = array('learning_plan' => get_string('learning_plan', 'block_learning_plan'),
-            'description' => get_string('desc', 'block_learning_plan'),);
-        $hcolumns = array();
-        if (!isset($columns[$sort])) {
-            $sort = 'learning_plan';
-        }
-        foreach ($columns as $column => $strcolumn) {
-            if ($sort != $column) {
-                $columnicon = '';
-                if ($column == 'learning_plan') {
-                    $columndir = 'DESC';
-                } else {
-                    $columndir = 'ASC';
-                }
-            } else {
-                $columndir = $dir == 'ASC' ? 'DESC' : 'ASC';
-                if ($column == 'learning_plan') {
-                    $columnicon = $dir == 'ASC' ? 'up' : 'down';
-                } else {
-                    $columnicon = $dir == 'ASC' ? 'down' : 'up';
-                }
-                $columnicon = " <img src=\"" . $OUTPUT->pix_url('t/' . $columnicon) . "\" alt=\"\" />";
-            }
-            $hcolumns[$column] = "<a href=\"view.php?viewpage=1&sort=$column&amp;dir=$columndir&amp;page=$page&amp;perpage=$perpage\">" . $strcolumn . "</a>$columnicon";
-        }
-        $baseurl = new moodle_url('view.php?viewpage=1', array('sort' => $sort, 'dir' => $dir, 'perpage' => $perpage));
-        echo $OUTPUT->paging_bar($changescount, $page, $perpage, $baseurl);
+        
         $table = new html_table();
-        $table->head = array(get_string('s_no', 'block_learning_plan'), $hcolumns['learning_plan'], $hcolumns['description'], get_string('edit'), get_string('remove'));
+        $table->head = array(get_string('s_no', 'block_learning_plan'), get_string('learning_plan', 'block_learning_plan' ), get_string('desc', 'block_learning_plan' ), get_string('edit'), get_string('remove'));
         $table->size = array('10%', '30', '45%', '10%', '10%', '10%');
+				$table->attributes = array('class' => 'display');
         $table->align = array('center', 'left', 'left', 'center', 'center', 'center');
         $table->width = '100%';
-        $orderby = "$sort $dir";
-        $sql = "SELECT id, learning_plan, description from {learning_learningplan}  ORDER BY $orderby ";
+        $sql = "SELECT id, learning_plan, description from {learning_learningplan}";
         $inc = 1;
-        $rs = $DB->get_recordset_sql($sql, array(), $page * $perpage, $perpage);
+        //$rs = $DB->get_recordset_sql($sql, array(), $page * $perpage, $perpage);
+        $rs = $DB->get_recordset_sql($sql, array(), null, null);
         foreach ($rs as $log) {
             $row = array();
             $row[] = $inc++;
@@ -134,10 +106,11 @@ class training_form extends moodleform {
         $radioarray[] = & $mform->createElement('radio', 'type_id', '', get_string('classroom', 'block_learning_plan'), 2, $attributes);
         $radioarray[] = & $mform->createElement('radio', 'type_id', '', get_string('onthejob', 'block_learning_plan'), 3, $attributes);
         $mform->addGroup($radioarray, 'type_id', get_string('training_method', 'block_learning_plan'), array('<br>'), false);
+        $mform->setDefault('type_id', 1);
         $mform->addRule('type_id', $errors, 'required', null, 'server');
         $mform->addElement('text', 'training_name', get_string('training_name', 'block_learning_plan'));
         // $mform->addRule('training_name', get_string('training_format', 'block_learning_plan'), 'regex', '#^[A-Z0-9 ]+$#i', 'client');
-        $mform->addRule('training_name', $errors, 'required', null, 'server');
+        $mform->addRule('training_name', null, 'required', null, 'server');
         $mform->setType('training_name', PARAM_TEXT);
         // $attributes = array('maxbytes' => '4194304', 'accepted_types' => "*");
         // $mform->addElement('file', 'attachment', get_string('attachment', 'block_learning_plan'), $attributes );
@@ -162,6 +135,7 @@ class training_form extends moodleform {
             return true;
         } else if ($DB->record_exists('learning_training', array('training_name' => $data['training_name']))) {
             $errors['training_name'] = get_string('training_exist', 'block_learning_plan');
+            return $errors;
         }
         if ($data['start_date'] >= $data['end_date']) {
             $errors['errormsg'] = get_string('date_val', 'block_learning_plan');
@@ -172,49 +146,23 @@ class training_form extends moodleform {
     public function display_list() {
         global $DB, $OUTPUT, $CFG;
         // page parameters.
-        $page = optional_param('page', 0, PARAM_INT);
-        $perpage = optional_param('perpage', 10, PARAM_INT);    // how many per page
-        $sort = optional_param('sort', 'training_name', PARAM_TEXT);
-        $dir = optional_param('dir', 'DESC', PARAM_ALPHA);
-        $changescount = $DB->count_records('learning_training');
+        
         $columns = array('training_name' => get_string('training_name', 'block_learning_plan'),
             'type_id' => get_string('training_method', 'block_learning_plan'),
             'start_date' => get_string('start_date', 'block_learning_plan'),
             'end_date' => get_string('end_date', 'block_learning_plan'),);
-        $hcolumns = array();
-        if (!isset($columns[$sort])) {
-            $sort = 'training_name';
-        }
-        foreach ($columns as $column => $strcolumn) {
-            if ($sort != $column) {
-                $columnicon = '';
-                if ($column == 'training_name') {
-                    $columndir = 'DESC';
-                } else {
-                    $columndir = 'ASC';
-                }
-            } else {
-                $columndir = $dir == 'ASC' ? 'DESC' : 'ASC';
-                if ($column == 'training_name') {
-                    $columnicon = $dir == 'ASC' ? 'up' : 'down';
-                } else {
-                    $columnicon = $dir == 'ASC' ? 'down' : 'up';
-                }
-                $columnicon = " <img src=\"" . $OUTPUT->pix_url('t/' . $columnicon) . "\" alt=\"\" />";
-            }
-            $hcolumns[$column] = "<a href=\"view.php?viewpage=2&sort=$column&amp;dir=$columndir&amp;page=$page&amp;perpage=$perpage\">" . $strcolumn . "</a>$columnicon";
-        }
-        $baseurl = new moodle_url('view.php?viewpage=2', array('sort' => $sort, 'dir' => $dir, 'perpage' => $perpage));
-        echo $OUTPUT->paging_bar($changescount, $page, $perpage, $baseurl);
+      
+        
         $table = new html_table();
-        $table->head = array(get_string('s_no', 'block_learning_plan'), $hcolumns['training_name'], $hcolumns['type_id'], $hcolumns['start_date'], $hcolumns['end_date'], get_string('edit'), get_string('remove'));
+        $table->head = array(get_string('s_no', 'block_learning_plan'), $columns['training_name'], $columns['type_id'], $columns['start_date'], $columns['end_date'], get_string('edit'), get_string('remove'));
         $table->size = array('10%', '15%', '15%', '15%', '15%', '15%', '15%');
+        $table->attributes = array('class' => 'display');
         $table->align = array('center', 'left', 'left', 'center', 'center', 'center');
         $table->width = '100%';
-        $orderby = "$sort $dir";
-        $sql = "SELECT id, training_name, type_id, start_date, end_date, url  from {learning_training}  ORDER BY $orderby ";
+        $sql = "SELECT id, training_name, type_id, start_date, end_date, url  from {learning_training} ";
         $inc = 1;
-        $rs = $DB->get_recordset_sql($sql, array(), $page * $perpage, $perpage);
+       // $rs = $DB->get_recordset_sql($sql, array(), $page * $perpage, $perpage);
+         $rs = $DB->get_recordset_sql($sql, array(), null, null);
         foreach ($rs as $log) {
             $row = array();
             $row[] = $inc++;
@@ -269,6 +217,7 @@ class trainingmethod_form extends moodleform {
         $table = new html_table();
         $table->head = array(get_string('s_no', 'block_learning_plan'), get_string('training_m', 'block_learning_plan'), get_string('desc', 'block_learning_plan'));
         $table->size = array('30%', '35%', '35%');
+        $table->attributes = array('class' => 'display');
         $table->align = array('center', 'left', 'left');
         $table->width = '100%';
         $table->data = array();
@@ -293,6 +242,7 @@ class assigntraining_learningplan__form extends moodleform {
         $mform->addElement('select', 'training_type', get_string('training_method', 'block_learning_plan'), $training_types);
         $select = $mform->addElement('selectwithlink', 't_id', get_string('training', 'block_learning_plan'), $attributes, null, null);
         $select->setmultiple(true);
+        $mform->addRule('t_id', get_string('select_training', 'block_learning_plan'), 'required', null, 'client');
         $mform->addElement('hidden', 'viewpage');
         $mform->setType('viewpage', PARAM_INT);
         $mform->addElement('hidden', 'id');
@@ -303,49 +253,24 @@ class assigntraining_learningplan__form extends moodleform {
     public function display_list() {
         global $DB, $OUTPUT, $CFG;
         // Page parameters.
-        $page = optional_param('page', 0, PARAM_INT);
-        $perpage = optional_param('perpage', 10, PARAM_INT);    // how many per page
-        $sort = optional_param('sort', 'learning_plan', PARAM_TEXT);
-        $dir = optional_param('dir', 'DESC', PARAM_ALPHA);
+      
         $columns = array('learning_plan' => get_string('learning_plan', 'block_learning_plan'),
             'training_name' => get_string('training_name', 'block_learning_plan'),
             'type_id' => get_string('training_method', 'block_learning_plan'),
         );
-        $hcolumns = array();
-        if (!isset($columns[$sort])) {
-            $sort = 'learning_plan';
-        }
-        foreach ($columns as $column => $strcolumn) {
-            if ($sort != $column) {
-                $columnicon = '';
-                if ($column == 'learning_plan') {
-                    $columndir = 'DESC';
-                } else {
-                    $columndir = 'ASC';
-                }
-            } else {
-                $columndir = $dir == 'ASC' ? 'DESC' : 'ASC';
-                if ($column == 'learning_plan') {
-                    $columnicon = $dir == 'ASC' ? 'up' : 'down';
-                } else {
-                    $columnicon = $dir == 'ASC' ? 'down' : 'up';
-                }
-                $columnicon = " <img src=\"" . $OUTPUT->pix_url('t/' . $columnicon) . "\" alt=\"\" />";
-            }
-            $hcolumns[$column] = "<a href=\"view.php?viewpage=4&sort=$column&amp;dir=$columndir&amp;page=$page&amp;perpage=$perpage\">" . $strcolumn . "</a>$columnicon";
-        }
-        $baseurl = new moodle_url('view.php?viewpage=4', array('sort' => $sort, 'dir' => $dir, 'perpage' => $perpage));
-        $orderby = "$sort $dir";
+      
         $table = new html_table();
-        $table->head = array(get_string('s_no', 'block_learning_plan'), $hcolumns['learning_plan'], $hcolumns['training_name'], $hcolumns['type_id'], get_string('remove'));
+        $table->head = array(get_string('s_no', 'block_learning_plan'), $columns['learning_plan'], $columns['training_name'], $columns['type_id'], get_string('remove'));
         $table->size = array('10%', '30%', '30%', '45%', '35%');
+        $table->attributes = array('class' => 'display');
         $table->align = array('center', 'left', 'left', 'left', 'center');
         $table->width = '100%';
         $sql = "SELECT id, (select learning_plan from {learning_learningplan}  where id=lp_id) as learning_plan,
                (select training_name from {learning_training} where id=t_id) as training_name,
-               (select type_id from {learning_training} where id=t_id) as type_id from {learning_plan_training}  ORDER BY $orderby ";
+               (select type_id from {learning_training} where id=t_id) as type_id from {learning_plan_training}  ";
         $inc = 1;
-        $rs = $DB->get_recordset_sql($sql, array(), $page * $perpage, $perpage);
+        //$rs = $DB->get_recordset_sql($sql, array(), $page * $perpage, $perpage);
+        $rs = $DB->get_recordset_sql($sql, array(), null, null);
         foreach ($rs as $log) {
             $row = array();
             $row[] = $inc++;
@@ -357,7 +282,7 @@ class assigntraining_learningplan__form extends moodleform {
             $table->data[] = $row;
         }
         // $rs->close();
-        echo $OUTPUT->paging_bar($inc + 1, $page, $perpage, $baseurl);
+        //echo $OUTPUT->paging_bar($inc + 1, $page, $perpage, $baseurl);
         return $table;
     }
 
@@ -385,6 +310,7 @@ class assignlerningplan_user_form extends moodleform {
         $attributes = $DB->get_records_sql_menu('SELECT id, CONCAT(firstname," ", lastname)FROM {user} where username!="guest"', array($params = null), $limitfrom = 0, $limitnum = 0);
         $select = $mform->addElement('select', 'u_id', get_string('users', 'block_learning_plan'), $attributes, null, array('link' => $CFG->wwwroot . '/user/editadvanced.php?id=-1', 'label' => get_string('addusers', 'block_learning_plan'), $attributes1));
         $select->setMultiple(true);
+        $mform->addRule('u_id', get_string('select_user', 'block_learning_plan'), 'required', null, 'client');
         // $mform->addElement('hidden', 'assignee', $USER->id);
         $mform->addElement('hidden', 'viewpage');
         $mform->setType('viewpage', PARAM_INT);
@@ -395,49 +321,24 @@ class assignlerningplan_user_form extends moodleform {
 
     public function display_list() {
         global $DB, $OUTPUT, $CFG;
-        $page = optional_param('page', 0, PARAM_INT);
-        $perpage = optional_param('perpage', 10, PARAM_INT);    // how many per page
-        $sort = optional_param('sort', 'learning_plan', PARAM_TEXT);
-        $dir = optional_param('dir', 'DESC', PARAM_ALPHA);
+       
         $columns = array('learning_plan' => get_string('learning_plan', 'block_learning_plan'),
             'fullname' => get_string('users', 'block_learning_plan'),);
-        $hcolumns = array();
-        if (!isset($columns[$sort])) {
-            $sort = 'learning_plan';
-        }
-        foreach ($columns as $column => $strcolumn) {
-            if ($sort != $column) {
-                $columnicon = '';
-                if ($column == 'learning_plan') {
-                    $columndir = 'DESC';
-                } else {
-                    $columndir = 'ASC';
-                }
-            } else {
-                $columndir = $dir == 'ASC' ? 'DESC' : 'ASC';
-                if ($column == 'learning_plan') {
-                    $columnicon = $dir == 'ASC' ? 'up' : 'down';
-                } else {
-                    $columnicon = $dir == 'ASC' ? 'down' : 'up';
-                }
-                $columnicon = " <img src=\"" . $OUTPUT->pix_url('t/' . $columnicon) . "\" alt=\"\" />";
-            }
-            $hcolumns[$column] = "<a href=\"view.php?viewpage=5&sort=$column&amp;dir=$columndir&amp;page=$page&amp;perpage=$perpage\">" . $strcolumn . "</a>$columnicon";
-        }
-        $baseurl = new moodle_url('view.php?viewpage=5', array('sort' => $sort, 'dir' => $dir, 'perpage' => $perpage));
-        $orderby = "$sort $dir";
+        
         $table = new html_table();
-        $table->head = array(get_string('s_no', 'block_learning_plan'), $hcolumns['learning_plan'], $hcolumns['fullname'], get_string('remove', 'block_learning_plan'));
+        $table->head = array(get_string('s_no', 'block_learning_plan'), $columns['learning_plan'], $columns['fullname'], get_string('remove', 'block_learning_plan'));
         $table->size = array('10%', '35%', '25%', '15%');
+        $table->attributes = array('class' => 'display');
         $table->align = array('center', 'left', 'left', 'center');
         $table->width = '100%';
         $table->data = array();
         $sql = "SELECT id, u_id, lp_id, (SELECT concat(firstname,' ', lastname)  FROM {user} WHERE id = u_id) as fullname,
                (SELECT learning_plan FROM {learning_learningplan} WHERE id = lp_id) as learning_plan,
                (SELECT concat(firstname,' ', lastname) FROM {user} WHERE id = assignee_id) as assignee
-               FROM {learning_user_learningplan} ORDER BY $orderby";
+               FROM {learning_user_learningplan}";
         $inc = 0;
-        $rs = $DB->get_recordset_sql($sql, array(), $page * $perpage, $perpage);
+        //$rs = $DB->get_recordset_sql($sql, array(), $page * $perpage, $perpage);
+        $rs = $DB->get_recordset_sql($sql, array(), null, null);
         foreach ($rs as $log) {
             $row = array();
             $row[] = ++$inc;
@@ -448,7 +349,7 @@ class assignlerningplan_user_form extends moodleform {
                     . ' <img src="' . $OUTPUT->pix_url('t/delete') . '" class="iconsmall"/></a>';
             $table->data[] = $row;
         }
-        echo $OUTPUT->paging_bar($inc + 1, $page, $perpage, $baseurl);
+        //echo $OUTPUT->paging_bar($inc + 1, $page, $perpage, $baseurl);
         return $table;
     }
 
@@ -491,6 +392,11 @@ class trainingstatus_form extends moodleform {
         $mform->setType('viewpage', PARAM_INT);
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
+                $mform->addRule('l_id', get_string('select_learningplan', 'block_learning_plan'), 'required', null, 'client');
+        $mform->addRule('u_id', get_string('selectuser', 'block_learning_plan'), 'required', null, 'client');
+        $mform->addRule('t_id', get_string('user_training', 'block_learning_plan'), 'required', null, 'client');
+
+        
         $this->add_action_buttons($cancel = false);
     }
 

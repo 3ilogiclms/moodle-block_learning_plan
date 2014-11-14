@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -13,67 +14,63 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /* Learning Plan Block
- * This plugin serves as a database and plan for all learning activities in the organziation, 
+ * This plugin serves as a database and plan for all learning activities in the organization,
  * where such activities are organized for a more structured learning program.
  * @package blocks
  * @author: Azmat Ullah, Talha Noor
- * @date: 20-Sep-2013
- * @copyright  Copyrights © 2012 - 2013 | 3i Logic (Pvt) Ltd.
+ * @date: 20-Aug-2014
+ * @copyright  Copyrights © 2012 - 2014 | 3i Logic (Pvt) Ltd.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+require_once(realpath(dirname(__FILE__) . '/lib.php'));
 
-require_once('lib.php');
 class block_learning_plan extends block_base {
+
     public function init() {
         global $CFG, $USER, $COURSE;
         $this->title = get_string('learning_plan', 'block_learning_plan');
     }
+
     public function get_content() {
         if ($this->content !== null) {
             return $this->content;
         }
-        global $CFG, $USER, $COURSE, $PAGE;
+        global $CFG, $USER, $COURSE, $PAGE, $DB;
         if (has_capability('block/learning_plan:managepages', $this->context)) {
             $this->title = get_string('learning_plan', 'block_learning_plan');
         } else if (has_capability('block/learning_plan:viewpages', $this->context)) {
             $this->title = get_string('myview', 'block_learning_plan');
-        }  
-        $this->content =  new stdClass;
-        
+        }
+        $this->content = new stdClass;
         if (has_capability('block/learning_plan:managepages', $this->context)) {
             $pageurl = new moodle_url('/blocks/learning_plan/view.php?viewpage');
-            if (!strpos($pageurl,'=')) {
+            if (!strpos($pageurl, '=')) {
                 $pageurl .= '=';
             }
-            $this->content->text .= html_writer::link($pageurl.'1', get_string('learningpath', 'block_learning_plan')).'<br>';
-            $this->content->text .= html_writer::link($pageurl.'2', get_string('add_training', 'block_learning_plan')).'<br>';
-            $this->content->text .= html_writer::link($pageurl.'4', get_string('assign_training_learningplan', 'block_learning_plan')).'<br>';
-            $this->content->text .= html_writer::link($pageurl.'5', get_string('assign_learningplan_user', 'block_learning_plan')).'<br>';
-            $this->content->text .= html_writer::link($pageurl.'6', get_string('trainingstatus', 'block_learning_plan')).'<br>';
-            $this->content->text .= html_writer::link($pageurl.'7', get_string('search', 'block_learning_plan'));
+            $this->content->text .= html_writer::link($pageurl . '1', get_string('learningpath', 'block_learning_plan')) . '<br>';
+            $this->content->text .= html_writer::link($pageurl . '2', get_string('add_training', 'block_learning_plan')) . '<br>';
+            $this->content->text .= html_writer::link($pageurl . '4', get_string('assign_training_learningplan', 'block_learning_plan')) . '<br>';
+            $this->content->text .= html_writer::link($pageurl . '5', get_string('assign_learningplan_user', 'block_learning_plan')) . '<br>';
+            $this->content->text .= html_writer::link($pageurl . '6', get_string('trainingstatus', 'block_learning_plan')) . '<br>';
+            $this->content->text .= html_writer::link($pageurl . '7', get_string('search', 'block_learning_plan'));
         } else if (has_capability('block/learning_plan:viewpages', $this->context)) {
             $pageurl = new moodle_url('/blocks/learning_plan/student/view.php?id');
-            if (!strpos($pageurl,'=')) {
+            if (!strpos($pageurl, '=')) {
                 $pageurl .= '=';
             }
-            // $learning_plan=user_learningplan($USER->id);
-            $learning_plan=$DB->get_recordset_sql('SELECT lp_id as id, (select  learning_plan  from {learning_learningplan} where id =lp_id) as learningplan FROM {learning_user_learningplan} where u_id = ?', array($USER->id));
-
-            foreach($learning_plan as $lp) {
-                $this->content->text .= html_writer::link($pageurl.$lp->id, $lp->learningplan).'<br>';
+            $learning_plan = user_learningplan($USER->id);
+            foreach ($learning_plan as $lp) {
+                $this->content->text .= html_writer::link($pageurl . $lp->id, format_string($lp->learningplan, false)) . '<br>';
             }
+            $learning_plan->close();
         }
-    return $this->content;
+        return $this->content;
     }
+
     public function applicable_formats() {
-  return array(
-           'site-index' => true,
-          'course-view' => false, 
-   'course-view-social' => false,
-                  'mod' => false, 
-             'mod-quiz' => false
-  );
-}
+        return array(
+            'all' => true);
+    }
+
 }

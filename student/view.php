@@ -26,7 +26,18 @@ require_once('../../../config.php');
 require_once('../learning_plan_form.php');
 require_once('../lib.php');
 require_once("{$CFG->libdir}/formslib.php");
+?>
+<link rel="stylesheet" type="text/css" href="<?php echo $CFG->wwwroot ?>/blocks/learning_plan/css/jquery.dataTables.css">
+<script type="text/javascript" language="javascript" src="<?php echo $CFG->wwwroot ?>/blocks/learning_plan/js/jquery.js"></script>
+<script type="text/javascript" language="javascript" src="<?php echo $CFG->wwwroot ?>/blocks/learning_plan/js/jquery.dataTables.js"></script>
+<script type="text/javascript" language="javascript" class="init">
+$(document).ready(function() {
+	$('.display').dataTable();
+});
+</script>
+<?php
 // Variable
+
 global $DB, $USER, $OUTPUT, $PAGE, $CFG;
 require_login();
 $lp_id = required_param('id', PARAM_INT);
@@ -41,8 +52,7 @@ $PAGE->navbar->ignore_active();
 $PAGE->navbar->add(get_string("pluginname", 'block_learning_plan'), new moodle_url($pageurl));
 echo $OUTPUT->header();
 $student_status = display_list($lp_id, $USER->id);
-$title = '<center><table width="100%" style="background-color:#EEE;"><tr><td><center><h2>' . get_string('status_report', 'block_learning_plan') .
-        '</h2><h2>' . $USER->firstname . ' ' . $USER->lastname . '</h2><h2>' . get_learningplan_name($lp_id) . '</h2><p>' . get_string('report_at', 'block_learning_plan') . ' ' . (Date("d M Y")) . '</p></center></td></tr><table></center>';
+$title = '<table width="100%" style="background-color:#EEE;"><tr><td style="text-align:center;"><h3>'.get_string('status_report', 'block_learning_plan').'</h3><h3>'.$USER->firstname . ' ' . $USER->lastname .'</h3><h3>'.get_learningplan_name($lp_id) .'</h3></h3><p>'.get_string('report_at', 'block_learning_plan') . ' ' .(Date("d M Y")).'</p></td></tr></tr><table>';
 echo $title;
 echo html_writer::table($student_status);
 $PAGE->requires->js_init_call('M.block_learning_plan.init', array($viewpage = "", $setting = ""));
