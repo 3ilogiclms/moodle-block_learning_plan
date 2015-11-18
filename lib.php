@@ -133,12 +133,12 @@ function display_list($lp_id, $u_id) {
     $table->attributes = array('class' => 'display');
 
     $table->data = array();
-    $sql = "select  t_id, (select type_id from  {learning_training} where id =t_id) as type_id, lp_id, lut.status, lut.remarks, `u_id` as id,(select training_name from  {learning_training} where id =t_id)
+    $sql = 'select  t_id, (select type_id from  {learning_training} where id =t_id) as type_id, lp_id, lut.status, lut.remarks, `u_id` as id,(select training_name from  {learning_training} where id =t_id)
             as training, (select url from {learning_training} where id =t_id) as url, (select learning_plan from   {learning_learningplan} where id =lp_id) as learning_plan, (SELECT
-            CONCAT(firstname,' ', lastname)FROM {user} where username!='guest' AND id = u_id) as name,(select
+            CONCAT(firstname," ", lastname)FROM {user} where username!="guest" AND id = u_id) as name,(select
             start_date from  {learning_training} where id =t_id)as date1,(select end_date from  {learning_training}
             where id =t_id)as date2 from {learning_plan_training} lpt inner join {learning_user_trainingplan} lut
-            on lut.lpt_id=lpt.id  where lpt.lp_id=? AND lut.u_id=?"; //ORDER BY $orderby';
+            on lut.lpt_id=lpt.id  where lpt.lp_id=? AND lut.u_id=?'; //ORDER BY $orderby';
     $inc = 0;
     $rs = $DB->get_recordset_sql($sql, array($lp_id, $u_id));
     foreach ($rs as $log) {

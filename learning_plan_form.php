@@ -307,7 +307,7 @@ class assignlerningplan_user_form extends moodleform {
         $mform->disabledIf('g_id', 'g_selection', 'eq', 1);
         $attributes = $DB->get_records_sql_menu('SELECT id, name FROM {groups}', null, $limitfrom = 0, $limitnum = 0);
         $select = $mform->addElement('select', 'g_id', get_string('department', 'block_learning_plan'), $attributes, null, array(null));
-        $attributes = $DB->get_records_sql_menu("SELECT id, CONCAT(firstname,' ', lastname)FROM {user} where username!='guest'", array($params = null), $limitfrom = 0, $limitnum = 0);
+        $attributes = $DB->get_records_sql_menu('SELECT id, CONCAT(firstname," ", lastname)FROM {user} where username!="guest"', array($params = null), $limitfrom = 0, $limitnum = 0);
         $select = $mform->addElement('select', 'u_id', get_string('users', 'block_learning_plan'), $attributes, null, array('link' => $CFG->wwwroot . '/user/editadvanced.php?id=-1', 'label' => get_string('addusers', 'block_learning_plan'), $attributes1));
         $select->setMultiple(true);
         $mform->addRule('u_id', get_string('select_user', 'block_learning_plan'), 'required', null, 'client');
@@ -372,9 +372,9 @@ class trainingstatus_form extends moodleform {
         }
         $mform->addElement('selectwithlink', 'l_id', get_string('learningplan', 'block_learning_plan'), $attributes, null, null);
         if (isset($u_id)) {
-            $attributes = $DB->get_records_sql_menu("SELECT id, CONCAT(firstname,' ', lastname)FROM {user} where username!='guest' AND id=?", array($u_id), $limitfrom = 0, $limitnum = 0);
+            $attributes = $DB->get_records_sql_menu('SELECT id, CONCAT(firstname," ", lastname)FROM {user} where username!="guest" AND id=?', array($u_id), $limitfrom = 0, $limitnum = 0);
         } else {
-            $attributes = $DB->get_records_sql_menu("SELECT id, CONCAT(firstname,' ', lastname)FROM {user} where username!='guest'", array($params = null), $limitfrom = 0, $limitnum = 0);
+            $attributes = $DB->get_records_sql_menu('SELECT id, CONCAT(firstname," ", lastname)FROM {user} where username!="guest"', array($params = null), $limitfrom = 0, $limitnum = 0);
         }
         $mform->addElement('selectwithlink', 'u_id', get_string('users', 'block_learning_plan'), $attributes, null, null);
         if (isset($t_id)) {
@@ -438,24 +438,24 @@ class search extends moodleform {
         $table->width = '100%';
         $table->data = array();
         if ($status == '3') {
-            $sql = "select  t_id, lp_id, lut.status, lut.remarks, `u_id` as id,
+            $sql = 'select  t_id, lp_id, lut.status, lut.remarks, `u_id` as id,
                (select training_name from  {learning_training} where id =t_id) as training,
                (select learning_plan from   {learning_learningplan} where id =lp_id) as learning_plan,
-                (SELECT CONCAT(firstname,' ', lastname)FROM {user} where username!='guest' AND id = u_id) as name,
+                (SELECT CONCAT(firstname," ", lastname)FROM {user} where username!="guest" AND id = u_id) as name,
                 (select start_date from  {learning_training} where id =t_id)as date1,
                 (select end_date from  {learning_training} where id =t_id)as date2
                 from {learning_plan_training}
-                lpt inner join {learning_user_trainingplan} lut on lut.lpt_id=lpt.id  where lpt.lp_id=?  AND lpt.t_id= ?"; // ORDER BY $orderby';
+                lpt inner join {learning_user_trainingplan} lut on lut.lpt_id=lpt.id  where lpt.lp_id=?  AND lpt.t_id= ?'; // ORDER BY $orderby';
         } else {
-            $sql = "select  t_id, lp_id, lut.status, lut.remarks, `u_id` as id,
+            $sql = 'select  t_id, lp_id, lut.status, lut.remarks, `u_id` as id,
                (select training_name from  {learning_training} where id =t_id)as training,
                (select learning_plan from   {learning_learningplan} where id =lp_id) as learning_plan,
-               (SELECT CONCAT(firstname,' ', lastname)FROM {user} where username!='guest' AND id = u_id) as name,
+               (SELECT CONCAT(firstname," ", lastname)FROM {user} where username!="guest" AND id = u_id) as name,
                (select start_date from  {learning_training} where id =t_id)as date1,
                (select end_date from  {learning_training} where id =t_id)as date2
                from {learning_plan_training}
                lpt inner join {learning_user_trainingplan} lut
-                on lut.lpt_id=lpt.id  where lpt.lp_id=?  AND lpt.t_id= ? AND lut.status = ?";
+                on lut.lpt_id=lpt.id  where lpt.lp_id=?  AND lpt.t_id= ? AND lut.status = ?';
         }
         $inc = 0;
         $rs = $DB->get_recordset_sql($sql, array($lp_id, $t_id, $status));
