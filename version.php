@@ -22,8 +22,8 @@
  * @copyright  Copyrights © 2012 - 2014 | 3i Logic (Pvt) Ltd.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$plugin->version   =   2014082002;        // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  =   2011070100;        // Requires Moodle 2.1 or later
-$plugin->release = '2.7';
+$plugin->version   =   2014082003;        // The current plugin version (Date: YYYYMMDDXX)
+$plugin->requires  =   2010112400;        // Requires Moodle 2.1 or later
+$plugin->release = '2.8';
 $plugin->maturity = MATURITY_STABLE;
 $plugin->component = 'block_learning_plan'; 

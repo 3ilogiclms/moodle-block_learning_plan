@@ -3,15 +3,6 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
-    'block/learning_plan:myaddinstance' => array(
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => array(
-            'user' => CAP_ALLOW
-        ),
- 
-        'clonepermissionsfrom' => 'moodle/site:manageblocks'
-    ),
     'block/learning_plan:viewpages' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_BLOCK,
