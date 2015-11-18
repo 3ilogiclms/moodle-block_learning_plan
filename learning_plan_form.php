@@ -469,7 +469,7 @@ class search extends moodleform {
                 $row[] = date('d-m-Y', $log->date2);
                 $row[] = status_value($log->status);
                 $row[] = format_string($log->remarks);
-                $row[] = '<a href="' . $CFG->wwwroot . '/blocks/learning_plan/view.php?viewpage=6&l_id=' . $log->lp_id . '&u_id=' . $log->id . '&t_id=' . $log->t_id . '&setting=1">Setting</a>';
+                $row[] = '<a href="' . $CFG->wwwroot . '/blocks/learning_plan/view.php?viewpage=6&l_id=' . $log->lp_id . '&u_id=' . $log->id . '&t_id=' . $log->t_id . '&setting=1">Modify</a>';
                 // $row[] = '<center><center><a title="Remove" href="'.$CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=5&rem=remove&id='.$log->id.'"/>
                 // <img src="'.$OUTPUT->pix_url('t/delete') . '" class="iconsmall"/></a></center>';
                 $table->data[] = $row;
