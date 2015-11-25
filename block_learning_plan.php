@@ -29,12 +29,15 @@ class block_learning_plan extends block_base {
 
     public function init() {
         global $CFG, $USER, $COURSE;
+
         $this->title = get_string('learning_plan', 'block_learning_plan');
     }
 
     public function get_content() {
         if ($this->content !== null) {
             return $this->content;
+
+
         }
         global $CFG, $USER, $COURSE, $PAGE, $DB;
         if (has_capability('block/learning_plan:managepages', $this->context)) {
@@ -43,11 +46,13 @@ class block_learning_plan extends block_base {
             $this->title = get_string('myview', 'block_learning_plan');
         }
         $this->content = new stdClass;
+        $this->content->text = ''; 
         if (has_capability('block/learning_plan:managepages', $this->context)) {
             $pageurl = new moodle_url('/blocks/learning_plan/view.php?viewpage');
             if (!strpos($pageurl, '=')) {
                 $pageurl .= '=';
             }
+
             $this->content->text .= html_writer::link($pageurl . '1', get_string('learningpath', 'block_learning_plan')) . '<br>';
             $this->content->text .= html_writer::link($pageurl . '2', get_string('add_training', 'block_learning_plan')) . '<br>';
             $this->content->text .= html_writer::link($pageurl . '4', get_string('assign_training_learningplan', 'block_learning_plan')) . '<br>';
