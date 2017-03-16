@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="blocks/learning_plan/db" VERSION="20130712" COMMENT="XMLDB file for Moodle blocks/learning_plan"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="block_learning_plan" COMMENT="Default comment for block_learning_plan, please edit me" NEXT="learning_learningplan">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="learning_learningplan" COMMENT="Learning Plan" PREVIOUS="block_learning_plan" NEXT="learning_training">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="learning_plan"/>
+        <FIELD NAME="learning_plan" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="description"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="learning_plan"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="learning_training" COMMENT="Default comment for the table, please edit me" PREVIOUS="learning_learningplan" NEXT="learning_plan_training">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="training_name"/>
+        <FIELD NAME="training_name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="type_id"/>
+        <FIELD NAME="type_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="training_name" NEXT="file"/>
+        <FIELD NAME="file" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="type_id" NEXT="url"/>
+        <FIELD NAME="url" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="file" NEXT="start_date"/>
+        <FIELD NAME="start_date" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="url" NEXT="end_date"/>
+        <FIELD NAME="end_date" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="start_date"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="learning_plan_training" COMMENT="Default comment for the table, please edit me" PREVIOUS="learning_training" NEXT="learning_traningtype">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="lp_id"/>
+        <FIELD NAME="lp_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="t_id"/>
+        <FIELD NAME="t_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="lp_id"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="lp_id"/>
+        <KEY NAME="lp_id" TYPE="foreign" FIELDS="lp_id" REFTABLE="learning_learningplan" REFFIELDS="id" PREVIOUS="primary" NEXT="t_id"/>
+        <KEY NAME="t_id" TYPE="foreign" FIELDS="t_id" REFTABLE="learning_training" REFFIELDS="id" PREVIOUS="lp_id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="learning_traningtype" COMMENT="Default comment for the table, please edit me" PREVIOUS="learning_plan_training" NEXT="learning_user_learningplan">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="training_type"/>
+        <FIELD NAME="training_type" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="description"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="training_type"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="learning_user_learningplan" COMMENT="Default comment for the table, please edit me" PREVIOUS="learning_traningtype" NEXT="learning_user_trainingplan">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="u_id"/>
+        <FIELD NAME="u_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="lp_id"/>
+        <FIELD NAME="lp_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="u_id" NEXT="assignee_id"/>
+        <FIELD NAME="assignee_id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="lp_id"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="lp_id"/>
+        <KEY NAME="lp_id" TYPE="foreign" FIELDS="lp_id" REFTABLE="learning_learningplan" REFFIELDS="id" PREVIOUS="primary"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="learning_user_trainingplan" COMMENT="Default comment for the table, please edit me" PREVIOUS="learning_user_learningplan">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="lpt_id"/>
+        <FIELD NAME="lpt_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="u_id"/>
+        <FIELD NAME="u_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="lpt_id" NEXT="status"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="25" NOTNULL="false" DEFAULT="Not Yet Started" SEQUENCE="false" PREVIOUS="u_id" NEXT="remarks"/>
+        <FIELD NAME="remarks" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="status"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="lpt_id"/>
+        <KEY NAME="lpt_id" TYPE="foreign" FIELDS="lpt_id" REFTABLE="learning_plan_training" REFFIELDS="id" PREVIOUS="primary"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>
