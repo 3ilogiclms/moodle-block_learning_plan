@@ -13,15 +13,17 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-/* Learning Plan Block
+
+/**
  * This plugin serves as a database and plan for all learning activities in the organization,
  * where such activities are organized for a more structured learning program.
- * @package blocks
- * @author: Azmat Ullah, Talha Noor
- * @date: 20-Aug-2014
- * @copyright  Copyrights © 2012 - 2014 | 3i Logic (Pvt) Ltd.
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    block_learning_plan
+ * @copyright  3i Logic<lms@3ilogic.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL
+ * @author     Azmat Ullah <azmat@3ilogic.com>
  */
+defined('MOODLE_INTERNAL') || die();
+
 $string['pluginname'] = 'Learning plan';
 $string['learning_plan'] = 'Learning plan';
 $string['learning_plan_name'] = 'Name';
@@ -56,8 +58,8 @@ $string['plan_format'] = 'Please add learning plan in correct format.';
 $string['plan_exist'] = 'Learning Plan already exist';
 $string['training_format'] = 'Please add  training in correct format';
 $string['training_exist'] = 'Training already exist.';
-$string['date_val'] = 'Start date should be greater than end date.';
-$string['s_no'] = 'Serial no.';
+$string['date_val'] = 'End date should be greater than start date.';
+$string['s_no'] = 'S.No.';
 $string['wrong_url'] = 'Wrong URL';
 $string['elearning'] = 'eLearning';
 $string['classroom'] = 'Classroom training';
@@ -81,12 +83,25 @@ $string['status_not_started'] = 'Not Yet Started';
 $string['status_in_progress'] = 'In-Progress';
 $string['status_completed'] = 'Completed';
 $string['status_all'] = 'All Status';
-$string['saved'] ='Record Added';
-$string['updated'] ='Record Updated';
-$string['removed'] ='Record Removed';
-$string['saved_changes'] ='Saved Changes';
+$string['saved'] = 'Record Added';
+$string['updated'] = 'Record Updated';
+$string['removed'] = 'Record Removed';
+$string['saved_changes'] = 'Saved Changes';
 $string['select_training'] = 'Please select training(s)';
 $string['select_user'] = 'Please select user(s)';
 $string['user_training'] = 'Please select training';
 $string['selectuser'] = 'Please select user';
 $string['select_learningplan'] = 'Please select Learning Plan';
+$string['notfound'] = 'Record not found!';
+$string['messageprovider:learningplan_notification'] = 'Learning plan notification';
+$string['learninig_plan:learningplan_notification'] = 'View message';
+$string['send_notification'] = 'Notification';
+$string['message'] = 'Message';
+$string['send_message'] = 'Send message';
+$string['notification_sent'] = 'Notification sent';
+$string['learning_plan_error'] = 'Learning plan is empty';
+$string['messageprovider:view'] = 'View notification';
+$string['learninig_plan:view'] = 'Learning plan notification view';
+$string['learninig_plan:sendmessages'] = 'Send notification';
+$string['learninig_plan:viewmessages'] = 'View notification';
+

@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -14,34 +13,33 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-/* Learning Plan Block
+
+/**
  * This plugin serves as a database and plan for all learning activities in the organization,
  * where such activities are organized for a more structured learning program.
- * @package blocks
- * @author: Azmat Ullah, Talha Noor
- * @date: 20-Aug-2014
- * @copyright  Copyrights © 2012 - 2014 | 3i Logic (Pvt) Ltd.
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    block_learning_plan
+ * @copyright  3i Logic<lms@3ilogic.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL
+ * @author     Azmat Ullah <azmat@3ilogic.com>
  */
-
 require_once('../../config.php');
 require_once('learning_plan_form.php');
 require_once("lib.php");
 global $DB;
 $attributes = array();
-$lp_id = required_param('id', PARAM_INT); // $_GET['id'];
-$u_id = optional_param('u_id', null, PARAM_INT); // $_GET['u_id'];
-$t = optional_param('t', null, PARAM_INT); // $_GET['t'];
-$t_id = optional_param('t_id', null, PARAM_INT); // $_GET['t_id'];
-$status = optional_param('status', null, PARAM_INT);  // $_GET['status'];
-$hidetraining = optional_param('hidetraining', null, PARAM_INT); // $_GET['hidetraining'];
-$hideusers = optional_param('hideusers', null, PARAM_INT); //$_GET['hideusers'];
+$lp_id = required_param('id', PARAM_INT);
+$u_id = optional_param('u_id', null, PARAM_INT);
+$t = optional_param('t', null, PARAM_INT);
+$t_id = optional_param('t_id', null, PARAM_INT);
+$status = optional_param('status', null, PARAM_INT);
+$hidetraining = optional_param('hidetraining', null, PARAM_INT);
+$hideusers = optional_param('hideusers', null, PARAM_INT);
 $t_type_id = optional_param('t_type_id', null, PARAM_INT);
 $g_id = optional_param('g_id', null, PARAM_INT);
 if (!isloggedin()) {
     redirect($CFG->wwwroot);
 }
-require_login(NULL, false);
+require_login(null, false);
 $PAGE->set_context(context_system::instance());
 $PAGE->set_url('/blocks/learning_plan/ajax_bridge.php');
 
@@ -62,7 +60,7 @@ if ($lp_id && $t_id) {
                                                  where lp_id= ?', array($lp_id), $limitfrom = 0, $limitnum = 0);
     }
 
-    // Change users on the base of Learning plan
+    // Change users on the base of Learning plan.
     else if ($lp_id && $hidetraining) {
         $attributes1 = $DB->get_records_sql_menu('SELECT id, training_name as name from {learning_training} where type_id=?', array($t_type_id), $limitfrom = 0, $limitnum = 0);
         $attributes2 = $DB->get_records_sql_menu('SELECT  t_id as id, (SELECT training_name from {learning_training} where id =t_id) as name from {learning_plan_training}

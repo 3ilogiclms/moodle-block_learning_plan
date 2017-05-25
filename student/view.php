@@ -13,31 +13,53 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-/* Learning Plan Block
- * This plugin serves as a database and plan for all learning activities in the organziation, 
+
+/**
+ * This plugin serves as a database and plan for all learning activities in the organization,
  * where such activities are organized for a more structured learning program.
- * @package blocks
- * @author: Azmat Ullah, Talha Noor
- * @date: 20-Aug-2014
- * @copyright  Copyrights © 2012 - 2014 | 3i Logic (Pvt) Ltd.
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    block_learning_plan
+ * @copyright  3i Logic<lms@3ilogic.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL
+ * @author     Azmat Ullah <azmat@3ilogic.com>
  */
 require_once('../../../config.php');
 require_once('../learning_plan_form.php');
 require_once('../lib.php');
 require_once("{$CFG->libdir}/formslib.php");
 ?>
-<link rel="stylesheet" type="text/css" href="<?php echo $CFG->wwwroot ?>/blocks/learning_plan/css/jquery.dataTables.css">
-<script type="text/javascript" language="javascript" src="<?php echo $CFG->wwwroot ?>/blocks/learning_plan/js/jquery.js"></script>
-<script type="text/javascript" language="javascript" src="<?php echo $CFG->wwwroot ?>/blocks/learning_plan/js/jquery.dataTables.js"></script>
+<!-- DataTables code starts-->
+<link rel="stylesheet" type="text/css" href="<?php echo $CFG->wwwroot ?>/blocks/learning_plan/public/datatable/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="<?php echo $CFG->wwwroot ?>/blocks/learning_plan/public/datatable/dataTables.tableTools.css">
+<script type="text/javascript" language="javascript" src="<?php echo $CFG->wwwroot ?>/blocks/learning_plan/public/datatable/jquery.js"></script>
+<script type="text/javascript" language="javascript" src="<?php echo $CFG->wwwroot ?>/blocks/learning_plan/public/datatable/jquery.dataTables.js"></script>
+<script type="text/javascript" language="javascript" src="<?php echo $CFG->wwwroot ?>/blocks/learning_plan/public/datatable/dataTables.tableTools.js"></script>
 <script type="text/javascript" language="javascript" class="init">
-$(document).ready(function() {
-	$('.display').dataTable();
-});
-</script>
-<?php
-// Variable
+    $(document).ready(function () {
+// fn for automatically adjusting table coulmns
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            $($.fn.dataTable.tables(true)).DataTable()
+                    .columns.adjust();
+        });
 
+        $('.display').DataTable({
+            dom: 'T<"clear">lfrtip',
+            tableTools: {
+                "aButtons": [
+                    "copy",
+                    "print",
+                    {
+                        "sExtends": "collection",
+                        "sButtonText": "Save",
+                        "aButtons": ["xls", "pdf"]
+                    }
+                ],
+                "sSwfPath": "<?php echo $CFG->wwwroot ?>/blocks/learning_plan/public/datatable/copy_csv_xls_pdf.swf"
+            }
+        });
+    });
+</script>
+<!-- DataTables code ends-->
+<?php
 global $DB, $USER, $OUTPUT, $PAGE, $CFG;
 require_login();
 $lp_id = required_param('id', PARAM_INT);
@@ -52,9 +74,17 @@ $PAGE->navbar->ignore_active();
 $PAGE->navbar->add(get_string("pluginname", 'block_learning_plan'), new moodle_url($pageurl));
 echo $OUTPUT->header();
 $student_status = display_list($lp_id, $USER->id);
-$title = '<table width="100%" style="background-color:#EEE;"><tr><td style="text-align:center;"><h3>'.get_string('status_report', 'block_learning_plan').'</h3><h3>'.$USER->firstname . ' ' . $USER->lastname .'</h3><h3>'.get_learningplan_name($lp_id) .'</h3></h3><p>'.get_string('report_at', 'block_learning_plan') . ' ' .(Date("d M Y")).'</p></td></tr></tr><table>';
+
+$title = '<h2 align="center">' . get_string('status_report', 'block_learning_plan') . '</h2>
+		  <table align="center">
+          <tr><td align="center">' .$USER->firstname . ' ' . $USER->lastname.'
+		  <h4>' . get_learningplan_name($lp_id) .'</h4>
+		  '.get_string('report_at', 'block_learning_plan') . ' ' . (Date("d M Y")).'
+		  </td>
+		  </tr>
+          </table>';
 echo $title;
-echo html_writer::table($student_status);
-$PAGE->requires->js_init_call('M.block_learning_plan.init', array($viewpage = "", $setting = ""));
+
+echo "<br/>".html_writer::table($student_status);
 echo $OUTPUT->footer();
-//End Form Display
+// End Form Display.
