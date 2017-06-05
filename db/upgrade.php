@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -9,21 +8,31 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-/* Learning Plan Block
- * This plugin serves as a database and plan for all learning activities in the organziation,
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * This plugin serves as a database and plan for all learning activities in the organization,
  * where such activities are organized for a more structured learning program.
- * @package blocks
- * @author: Azmat Ullah, Talha Noor
- * @date: 20-Aug-2014
- * @copyright Copyrights © 2012 - 2014 | 3i Logic (Pvt) Ltd.
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    block_learning_plan
+ * @copyright  3i Logic<lms@3ilogic.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL
+ * @author     Azmat Ullah <azmat@3ilogic.com>
  */
-// Ref: http://docs.moodle.org/dev/Upgrade_API
+// Ref: http://docs.moodle.org/dev/Upgrade_API.
+
+defined('MOODLE_INTERNAL') || die();
+
+
+/**
+ * Checking previous versions allow us to upgrade only the settings that need to be changed
+ * and avoid changes that might have since been customized by the site administrator.
+ * @param float old version information
+ * @return boolean.
+ */
 function xmldb_block_learning_plan_upgrade($oldversion) {
     global $DB;
     $plugin = new stdClass();

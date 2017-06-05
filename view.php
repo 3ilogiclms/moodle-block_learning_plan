@@ -13,14 +13,14 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-/* Learning Plan Block
- * This plugin serves as a database and plan for all learning activities in the organziation, 
+
+/**
+ * This plugin serves as a database and plan for all learning activities in the organization,
  * where such activities are organized for a more structured learning program.
- * @package blocks
- * @author: Azmat Ullah, Talha Noor
- * @date: 20-Aug-2014
- * @copyright  Copyrights © 2012 - 2014 | 3i Logic (Pvt) Ltd.
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    block_learning_plan
+ * @copyright  3i Logic<lms@3ilogic.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL
+ * @author     Azmat Ullah <azmat@3ilogic.com>
  */
 require_once('../../config.php');
 $setting = null;
@@ -42,16 +42,38 @@ $learningplan_url = new moodle_url('/blocks/learning_plan/view.php?viewpage=1');
 $nav_title = nav_title($viewpage);
 ?>
 
-<link rel="stylesheet" type="text/css" href="<?php echo $CFG->wwwroot ?>/blocks/learning_plan/css/jquery.dataTables.css">
-<script type="text/javascript" language="javascript" src="<?php echo $CFG->wwwroot ?>/blocks/learning_plan/js/jquery.js"></script>
-<script type="text/javascript" language="javascript" src="<?php echo $CFG->wwwroot ?>/blocks/learning_plan/js/jquery.dataTables.js"></script>
+<!-- DataTables code starts-->
+<link rel="stylesheet" type="text/css" href="<?php echo $CFG->wwwroot ?>/blocks/learning_plan/public/datatable/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="<?php echo $CFG->wwwroot ?>/blocks/learning_plan/public/datatable/dataTables.tableTools.css">
+<script type="text/javascript" language="javascript" src="<?php echo $CFG->wwwroot ?>/blocks/learning_plan/public/datatable/jquery.js"></script>
+<script type="text/javascript" language="javascript" src="<?php echo $CFG->wwwroot ?>/blocks/learning_plan/public/datatable/jquery.dataTables.js"></script>
+<script type="text/javascript" language="javascript" src="<?php echo $CFG->wwwroot ?>/blocks/learning_plan/public/datatable/dataTables.tableTools.js"></script>
 <script type="text/javascript" language="javascript" class="init">
-    $(document).ready(function() {
-        $('.display').dataTable();
-        //"fnServerData":getRows();
+    $(document).ready(function () {
+// fn for automatically adjusting table coulmns
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            $($.fn.dataTable.tables(true)).DataTable()
+                    .columns.adjust();
+        });
 
+        $('.display').DataTable({
+            dom: 'T<"clear">lfrtip',
+            tableTools: {
+                "aButtons": [
+                    "copy",
+                    "print",
+                    {
+                        "sExtends": "collection",
+                        "sButtonText": "Save",
+                        "aButtons": ["xls", "pdf"]
+                    }
+                ],
+                "sSwfPath": "<?php echo $CFG->wwwroot ?>/blocks/learning_plan/public/datatable/copy_csv_xls_pdf.swf"
+            }
+        });
     });
 </script>
+<!-- DataTables code ends-->
 <?php
 require_login();
 $context = context_system::instance();
@@ -61,8 +83,6 @@ if (!has_capability('block/learning_plan:managepages', $context)) {
 $PAGE->set_context($context);
 $PAGE->set_url($pageurl);
 $PAGE->set_pagelayout('standard');
-//$PAGE->set_heading('Learning Plan');
-//$PAGE->set_title('Learning Plan');
 $PAGE->set_heading(get_string('learning_plan', 'block_learning_plan'));
 $PAGE->set_title(get_string('learning_plan', 'block_learning_plan'));
 $PAGE->navbar->ignore_active();
@@ -75,6 +95,7 @@ $table->head = array('<a href="' . $CFG->wwwroot . '/blocks/learning_plan/view.p
     '<a href="' . $CFG->wwwroot . '/blocks/learning_plan/view.php?viewpage=4">' . get_string('assign_training_learningplan', 'block_learning_plan') . '</a>',
     '<a href="' . $CFG->wwwroot . '/blocks/learning_plan/view.php?viewpage=5">' . get_string('assign_learningplan_user', 'block_learning_plan') . '</a>',
     '<a href="' . $CFG->wwwroot . '/blocks/learning_plan/view.php?viewpage=6">' . get_string('trainingstatus', 'block_learning_plan') . '</a>',
+    '<a href="' . $CFG->wwwroot . '/blocks/learning_plan/view.php?viewpage=8">' . get_string('send_notification', 'block_learning_plan') . '</a>',
     '<a href="' . $CFG->wwwroot . '/blocks/learning_plan/view.php?viewpage=7">' . get_string('search', 'block_learning_plan') . '</a>');
 $table->size = array('15%', '15%', '20%', '25%', '15%', '10%');
 $table->align = array('center', 'center', 'center', 'center', 'center', 'center');
@@ -89,7 +110,7 @@ if ($viewpage == 1) { // Add Learning Plans.
             $DB->update_record('learning_learningplan', $fromform);
             redirect($pageurl, get_string('updated', 'block_learning_plan'), 2);
         } else {
-            // Insert Record
+            // Insert Record.
             $DB->insert_record('learning_learningplan', $fromform);
             redirect($pageurl, get_string('saved', 'block_learning_plan'), 2);
         }
@@ -111,11 +132,11 @@ if ($viewpage == 1) { // Add Learning Plans.
     $form = new training_form();
     if ($fromform = $form->get_data()) {
         if ($fromform->id) {
-            // Update Record
+            // Update Record.
             $DB->update_record('learning_training', $fromform);
             redirect($pageurl, get_string('updated', 'block_learning_plan'), 2);
         } else {
-            // Insert Record
+            // Insert Record.
             $DB->insert_record('learning_training', $fromform);
             redirect($pageurl, get_string('saved', 'block_learning_plan'), 2);
         }
@@ -138,26 +159,24 @@ if ($viewpage == 1) { // Add Learning Plans.
 } else if ($viewpage == 4) { // Assign Training into Learning Plan.
     $form = new assigntraining_learningplan__form();
     if ($fromform = $form->get_data()) {
-        // print_object($fromform);
         if ($fromform->id) {
-            // Update Record
+            // Update Record.
             $DB->update_record('learning_plan_training ', $fromform);
         } else {
-            // Insert Record
+            // Insert Record.
             $max = sizeof($fromform->t_id);
-            //print $max;
             $record = new stdClass();
             $record->lp_id = $fromform->l_id;
             foreach ($fromform->t_id as $formtid) {
                 $record->t_id = $formtid;
                 $DB->insert_record('learning_plan_training', $record);
-                // Condtion for already assigned learning plan
-                // Getting lpt_id
-                // Get lp_id and getting user array
+                // Condtion for already assigned learning plan.
+                // Getting lpt_id.
+                // Get lp_id and getting user array.
                 if (islp_assign_user($record->lp_id)) {
                     $lpt_id = get_lpt_id($record->lp_id, $record->t_id);
                     $users = get_learningplan_user($record->lp_id);
-                    // Insert User Training if leraning plan already assgin to user
+                    // Insert User Training if leraning plan already assgin to user.
                     $record2 = new stdClass();
                     $record2->lpt_id = $lpt_id;
                     foreach ($users as $userid) {
@@ -171,23 +190,19 @@ if ($viewpage == 1) { // Add Learning Plans.
     }
     // Delete Record.
     if ($rem) {
-//        echo $OUTPUT->confirm(get_string('record_delete', 'block_learning_plan'), '/blocks/learning_plan/view.php?viewpage=4&rem=rem&delete='.$id,
-//                                         '/blocks/learning_plan/view.php?viewpage=4');
         echo $OUTPUT->confirm(get_string('record_delete', 'block_learning_plan'), '/blocks/learning_plan/view.php?viewpage=4&rem=rem&delete=' . $id . '&id=' . $lp, '/blocks/learning_plan/view.php?viewpage=4');
         if ($delete) {
-            // delete_learningplan_record('learning_plan_training', $delete, $pageurl);
             delete_learningplan_record('learning_plan_training', $delete, $pageurl, $id);
         }
     }
 } else if ($viewpage == 5) { // Assign Learning plan to User.
     $form = new assignlerningplan_user_form();
     if ($fromform = $form->get_data()) {
-        // print_object($fromform);
         if ($fromform->id) {
-            // Update Record
+            // Update Record.
             $DB->update_record('learning_user_learningplan', $fromform);
         } else {
-            // Insert Record
+            // Insert Record.
             $record = new stdClass();
             $record2 = new stdClass();
             $record->lp_id = $fromform->l_id;
@@ -198,10 +213,10 @@ if ($viewpage == 1) { // Add Learning Plans.
                 foreach ($training as $train) {
                     $record2->lpt_id = $train->id;
                     $record2->u_id = $record->u_id;
-                    // Insert in learning_user_trainingplan
+                    // Insert in learning_user_trainingplan.
                     $DB->insert_record('learning_user_trainingplan', $record2);
                 }
-                // Insert in learning_user_learningplan
+                // Insert in learning_user_learningplan.
                 $DB->insert_record('learning_user_learningplan', $record);
             }
         }
@@ -209,11 +224,8 @@ if ($viewpage == 1) { // Add Learning Plans.
     }
     // Delete Record.
     if ($rem) {
-        echo $OUTPUT->confirm(get_string('record_delete', 'block_learning_plan'),
-                //                              '/blocks/learning_plan/view.php?viewpage=5&rem=rem&delete='.$id, '/blocks/learning_plan/view.php?viewpage=5');
-                '/blocks/learning_plan/view.php?viewpage=5&rem=rem&delete=' . $u_id . '&lp=' . $lp, '/blocks/learning_plan/view.php?viewpage=5');
+        echo $OUTPUT->confirm(get_string('record_delete', 'block_learning_plan'), '/blocks/learning_plan/view.php?viewpage=5&rem=rem&delete=' . $u_id . '&lp=' . $lp, '/blocks/learning_plan/view.php?viewpage=5');
         if ($delete) {
-            // delete_learningplan_record('learning_user_learningplan', $delete, $pageurl);
             delete_learningplan_record('learning_user_learningplan', $delete, $pageurl, $lp);
         }
     }
@@ -228,22 +240,37 @@ if ($viewpage == 1) { // Add Learning Plans.
     }
 } else if ($viewpage == 7) {
     $form = new search();
+} else if ($viewpage == 8) {
+
+    $form = new send_notification();
+    $form->display();
+
+    if ($fromform = $form->get_data()) {
+        $learning_plan = $fromform->learning_plan;
+        $message = $fromform->message;
+
+        $training_list = get_lp_training($learning_plan);
+        $training_list = html_writer::table($training_list);
+
+        $users_list = lp_get_users($learning_plan, $message, $training_list);
+        redirect($pageurl, get_string('notification_sent', 'block_learning_plan'), 2);
+    }
 }
 // Set viewpage with form.
-$toform['viewpage'] = $viewpage;
-$form->set_data($toform);
+if ($viewpage != 8) {
+    $toform['viewpage'] = $viewpage;
+    $form->set_data($toform);
 // Display Form.
-$form->display();
+    $form->display();
 // Form Cancel.
-if ($fromform = $form->is_cancelled()) {
-    redirect("{$CFG->wwwroot}" . "/blocks/learning_plan/view.php?viewpage=" . $viewpage);
-}
+    if ($fromform = $form->is_cancelled()) {
+        redirect("{$CFG->wwwroot}" . "/blocks/learning_plan/view.php?viewpage=" . $viewpage);
+    }
 // Display List.
-if ($table = $form->display_list()) {
-    // echo '<div id="prints">';
-    echo html_writer::table($table);
-    // echo '</div>';
+    if ($table = $form->display_list()) {
+        echo html_writer::table($table);
+    }
 }
 $PAGE->requires->js_init_call('M.block_learning_plan.init', array($viewpage, $setting));
 echo $OUTPUT->footer();
-// End Form Display
+// End Form Display.

@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -14,18 +13,23 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-/* Learning Plan Block
- * This plugin serves as a database and plan for all learning activities in the organziation, 
+
+/**
+ * This plugin serves as a database and plan for all learning activities in the organization,
  * where such activities are organized for a more structured learning program.
- * @package blocks
- * @author: Azmat Ullah, Talha Noor
- * @date: 20-Aug-2014
- * @copyright  Copyrights © 2012 - 2014 | 3i Logic (Pvt) Ltd.
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    block_learning_plan
+ * @copyright  3i Logic<lms@3ilogic.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL
+ * @author     Azmat Ullah <azmat@3ilogic.com>
  */
 require_once("{$CFG->libdir}/formslib.php");
 
-// Add Learning Plans.
+/**
+ * Class for add a learning plan.
+ *
+ * @copyright 3i Logic<lms@3ilogic.com>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class learningplan_form extends moodleform {
 
     public function definition() {
@@ -62,17 +66,19 @@ class learningplan_form extends moodleform {
     public function display_list() {
         global $DB, $OUTPUT, $CFG;
         // Page parameters.
-        
+
         $table = new html_table();
-        $table->head = array(get_string('s_no', 'block_learning_plan'), get_string('learning_plan', 'block_learning_plan' ), get_string('desc', 'block_learning_plan' ), get_string('edit'), get_string('remove'));
+        $table->head = array(get_string('s_no', 'block_learning_plan'), get_string('learning_plan', 'block_learning_plan'), get_string('desc', 'block_learning_plan'), get_string('edit'), get_string('remove'));
         $table->size = array('10%', '30', '45%', '10%', '10%', '10%');
-				$table->attributes = array('class' => 'display');
+        $table->attributes = array('class' => 'display');
         $table->align = array('center', 'left', 'left', 'center', 'center', 'center');
         $table->width = '100%';
         $sql = "SELECT id, learning_plan, description from {learning_learningplan}";
         $inc = 1;
-        //$rs = $DB->get_recordset_sql($sql, array(), $page * $perpage, $perpage);
-        $rs = $DB->get_recordset_sql($sql, array(), null, null);
+        $rs = $DB->get_recordset_sql($sql, array());
+
+
+		if ($DB->record_exists_sql($sql, array())) {
         foreach ($rs as $log) {
             $row = array();
             $row[] = $inc++;
@@ -84,6 +90,10 @@ class learningplan_form extends moodleform {
                        <img alt="" src="' . $OUTPUT->pix_url('t/delete') . '" class="iconsmall"/></a></center>';
             $table->data[] = $row;
         }
+		}
+		else {
+            $table->data[] = array('', '', get_string('notfound', 'block_learning_plan'), '', '');
+        }
         // $rs->close();
         return $table;
         // echo html_writer::table($table);
@@ -91,7 +101,12 @@ class learningplan_form extends moodleform {
 
 }
 
-// Add Training Types.
+/**
+ * Class for add a training.
+ *
+ * @copyright 3i Logic<lms@3ilogic.com>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class training_form extends moodleform {
 
     public function definition() {
@@ -116,7 +131,7 @@ class training_form extends moodleform {
         // $mform->addElement('file', 'attachment', get_string('attachment', 'block_learning_plan'), $attributes );
         // $mform->addElement('filepicker', 'attachment', get_string('attachment', 'block_learning_plan'), null, $attributes);
         $mform->addElement('text', 'url', get_string('url', 'block_learning_plan'));
-        $mform->addRule('url', get_string('wrong_url', 'block_learning_plan'), 'regex', '/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i', 'client');
+        $mform->addRule('url', get_string('wrong_url', 'block_learning_plan'), 'regex', '/\b(?:(?:https?|:http?|ftp):\/\/)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i', 'client');
         $mform->setType('url', PARAM_LOCALURL);
         $mform->addElement('date_time_selector', 'start_date', get_string('start_date', 'block_learning_plan'));
         $mform->addElement('date_time_selector', 'end_date', get_string('end_date', 'block_learning_plan'));
@@ -146,13 +161,13 @@ class training_form extends moodleform {
     public function display_list() {
         global $DB, $OUTPUT, $CFG;
         // page parameters.
-        
+
         $columns = array('training_name' => get_string('training_name', 'block_learning_plan'),
             'type_id' => get_string('training_method', 'block_learning_plan'),
             'start_date' => get_string('start_date', 'block_learning_plan'),
             'end_date' => get_string('end_date', 'block_learning_plan'),);
-      
-        
+
+
         $table = new html_table();
         $table->head = array(get_string('s_no', 'block_learning_plan'), $columns['training_name'], $columns['type_id'], $columns['start_date'], $columns['end_date'], get_string('edit'), get_string('remove'));
         $table->size = array('10%', '15%', '15%', '15%', '15%', '15%', '15%');
@@ -161,8 +176,9 @@ class training_form extends moodleform {
         $table->width = '100%';
         $sql = "SELECT id, training_name, type_id, start_date, end_date, url  from {learning_training} ";
         $inc = 1;
-       // $rs = $DB->get_recordset_sql($sql, array(), $page * $perpage, $perpage);
-         $rs = $DB->get_recordset_sql($sql, array(), null, null);
+        $rs = $DB->get_recordset_sql($sql, array());
+
+		if ($DB->record_exists_sql($sql, array())) {
         foreach ($rs as $log) {
             $row = array();
             $row[] = $inc++;
@@ -191,13 +207,22 @@ class training_form extends moodleform {
                      <img alt="" src="' . $OUTPUT->pix_url('t/delete') . '" class="iconsmall"/></a></center>';
             $table->data[] = $row;
         }
+		}
+		else {
+            $table->data[] = array('', '', '', get_string('notfound', 'block_learning_plan'), '', '', '');
+        }
         //$rs->close();
         return $table;
     }
 
 }
 
-// Add Training Method.
+/**
+ * Class for add a training method.
+ * Note: This class currently not using. It just added for future plugin enhancement purpose.
+ * @copyright 3i Logic<lms@3ilogic.com>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class trainingmethod_form extends moodleform {
 
     public function definition() {
@@ -228,7 +253,12 @@ class trainingmethod_form extends moodleform {
 
 }
 
-// Assign Training into Learning Plan.
+/**
+ * Class for assign trainings in to a learning plan.
+ *
+ * @copyright 3i Logic<lms@3ilogic.com>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class assigntraining_learningplan__form extends moodleform {
 
     public function definition() {
@@ -253,12 +283,12 @@ class assigntraining_learningplan__form extends moodleform {
     public function display_list() {
         global $DB, $OUTPUT, $CFG;
         // Page parameters.
-      
+
         $columns = array('learning_plan' => get_string('learning_plan', 'block_learning_plan'),
             'training_name' => get_string('training_name', 'block_learning_plan'),
             'type_id' => get_string('training_method', 'block_learning_plan'),
         );
-      
+
         $table = new html_table();
         $table->head = array(get_string('s_no', 'block_learning_plan'), $columns['learning_plan'], $columns['training_name'], $columns['type_id'], get_string('remove'));
         $table->size = array('10%', '30%', '30%', '45%', '35%');
@@ -268,10 +298,12 @@ class assigntraining_learningplan__form extends moodleform {
         $sql = "SELECT id, (select learning_plan from {learning_learningplan}  where id=lp_id) as learning_plan,
                (select training_name from {learning_training} where id=t_id) as training_name,
                (select type_id from {learning_training} where id=t_id) as type_id from {learning_plan_training}  ";
-        $inc = 1;
+
+		$inc = 1;
         //$rs = $DB->get_recordset_sql($sql, array(), $page * $perpage, $perpage);
-        $rs = $DB->get_recordset_sql($sql, array(), null, null);
-        foreach ($rs as $log) {
+        $rs = $DB->get_recordset_sql($sql, array());
+        if ($DB->record_exists_sql($sql, array())) {
+		foreach ($rs as $log) {
             $row = array();
             $row[] = $inc++;
             $row[] = format_string($log->learning_plan, false);
@@ -281,14 +313,21 @@ class assigntraining_learningplan__form extends moodleform {
                      <img src="' . $OUTPUT->pix_url('t/delete') . '" class="iconsmall"/></a></center>';
             $table->data[] = $row;
         }
-        // $rs->close();
-        //echo $OUTPUT->paging_bar($inc + 1, $page, $perpage, $baseurl);
-        return $table;
+		}
+		else {
+            $table->data[] = array('', '', get_string('notfound', 'block_learning_plan'), '', '');
+        }
+		return $table;
     }
 
 }
 
-// Assign Learning plan to User.
+/**
+ * Class for assign users in to a learning plan.
+ *
+ * @copyright 3i Logic<lms@3ilogic.com>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class assignlerningplan_user_form extends moodleform {
 
     public function definition() {
@@ -321,10 +360,10 @@ class assignlerningplan_user_form extends moodleform {
 
     public function display_list() {
         global $DB, $OUTPUT, $CFG;
-       
+
         $columns = array('learning_plan' => get_string('learning_plan', 'block_learning_plan'),
             'fullname' => get_string('users', 'block_learning_plan'),);
-        
+
         $table = new html_table();
         $table->head = array(get_string('s_no', 'block_learning_plan'), $columns['learning_plan'], $columns['fullname'], get_string('remove', 'block_learning_plan'));
         $table->size = array('10%', '35%', '25%', '15%');
@@ -336,10 +375,12 @@ class assignlerningplan_user_form extends moodleform {
                (SELECT learning_plan FROM {learning_learningplan} WHERE id = lp_id) as learning_plan,
                (SELECT concat(firstname,' ', lastname) FROM {user} WHERE id = assignee_id) as assignee
                FROM {learning_user_learningplan}";
-        $inc = 0;
+
+		$inc = 0;
         //$rs = $DB->get_recordset_sql($sql, array(), $page * $perpage, $perpage);
-        $rs = $DB->get_recordset_sql($sql, array(), null, null);
-        foreach ($rs as $log) {
+        $rs = $DB->get_recordset_sql($sql, array());
+        if ($DB->record_exists_sql($sql, array())) {
+		foreach ($rs as $log) {
             $row = array();
             $row[] = ++$inc;
             $row[] = format_string($log->learning_plan, false);
@@ -349,13 +390,21 @@ class assignlerningplan_user_form extends moodleform {
                     . ' <img src="' . $OUTPUT->pix_url('t/delete') . '" class="iconsmall"/></a>';
             $table->data[] = $row;
         }
-        //echo $OUTPUT->paging_bar($inc + 1, $page, $perpage, $baseurl);
+		}
+		else {
+            $table->data[] = array('', '', get_string('notfound', 'block_learning_plan'), '');
+        }
         return $table;
     }
 
 }
 
-// Set Training Status.
+/**
+ * Class to set user's trainings status.
+ *
+ * @copyright 3i Logic<lms@3ilogic.com>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class trainingstatus_form extends moodleform {
 
     public function definition() {
@@ -392,11 +441,11 @@ class trainingstatus_form extends moodleform {
         $mform->setType('viewpage', PARAM_INT);
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
-                $mform->addRule('l_id', get_string('select_learningplan', 'block_learning_plan'), 'required', null, 'client');
+        $mform->addRule('l_id', get_string('select_learningplan', 'block_learning_plan'), 'required', null, 'client');
         $mform->addRule('u_id', get_string('selectuser', 'block_learning_plan'), 'required', null, 'client');
         $mform->addRule('t_id', get_string('user_training', 'block_learning_plan'), 'required', null, 'client');
 
-        
+
         $this->add_action_buttons($cancel = false);
     }
 
@@ -406,6 +455,12 @@ class trainingstatus_form extends moodleform {
 
 }
 
+/**
+ * Class to search training result.
+ *
+ * @copyright 3i Logic<lms@3ilogic.com>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class search extends moodleform {
 
     public function definition() {
@@ -426,7 +481,7 @@ class search extends moodleform {
     }
 
     public function display_list($lp_id = "", $t_id = "", $status = "") {
-        // if ($lp_id && $t_id) {
+
         global $DB, $OUTPUT, $CFG;
         $table = new html_table();
         $table->id = 'statuslist';
@@ -457,10 +512,12 @@ class search extends moodleform {
                lpt inner join {learning_user_trainingplan} lut
                 on lut.lpt_id=lpt.id  where lpt.lp_id=?  AND lpt.t_id= ? AND lut.status = ?';
         }
-        $inc = 0;
+
+
+		$inc = 0;
         $rs = $DB->get_recordset_sql($sql, array($lp_id, $t_id, $status));
-        if (count($rs) > 0) {
-            foreach ($rs as $log) {
+        if ($DB->record_exists_sql($sql, array($lp_id, $t_id, $status))) {
+			foreach ($rs as $log) {
                 $row = array();
                 $row[] = ++$inc;
                 $row[] = format_string($log->training);
@@ -469,15 +526,60 @@ class search extends moodleform {
                 $row[] = date('d-m-Y', $log->date2);
                 $row[] = status_value($log->status);
                 $row[] = format_string($log->remarks);
-                $row[] = '<a href="' . $CFG->wwwroot . '/blocks/learning_plan/view.php?viewpage=6&l_id=' . $log->lp_id . '&u_id=' . $log->id . '&t_id=' . $log->t_id . '&setting=1">Modify</a>';
-                // $row[] = '<center><center><a title="Remove" href="'.$CFG->wwwroot.'/blocks/learning_plan/view.php?viewpage=5&rem=remove&id='.$log->id.'"/>
-                // <img src="'.$OUTPUT->pix_url('t/delete') . '" class="iconsmall"/></a></center>';
+                $row[] = '<a href="' . $CFG->wwwroot . '/blocks/learning_plan/view.php?viewpage=6&l_id=' . $log->lp_id . '&u_id=' . $log->id . '&t_id=' . $log->t_id . '&setting=1">Setting</a>';
                 $table->data[] = $row;
             }
-        } else {
-            $row = array('None');
+        }
+		else {
+            $table->data[] = array('', '', '', '', get_string('notfound', 'block_learning_plan'), '', '', '');
         }
         return $table;
     }
 
 }
+
+/**
+ * Class for add a learning plan.
+ *
+ * @copyright 3i Logic<lms@3ilogic.com>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+
+class send_notification extends moodleform {
+
+    public function definition() {
+		 global $DB, $CFG;
+        $mform = & $this->_form;
+
+		$mform->addElement('header', 'displayinfo', get_string('send_notification', 'block_learning_plan'));
+
+		$learning_plan_sql = 'select DISTINCT ll.id,ll.learning_plan from
+                    {learning_learningplan} ll inner join {learning_plan_training} lpt
+                    on ll.id=lpt.lp_id inner join {learning_user_learningplan} lul
+                    on lpt.lp_id=lul.lp_id';
+		$learning_plan_rs = $DB->get_records_sql($learning_plan_sql, array());
+
+        $learning_plan_row = array();
+        foreach ($learning_plan_rs as $learning_plan_log) {
+            $learning_plan_row[$learning_plan_log->id] = $learning_plan_log->learning_plan;
+        }
+        $mform->addElement('select', 'learning_plan', get_string('learning_plan', 'block_learning_plan'), $learning_plan_row);
+$mform->addRule('learning_plan', get_string('learning_plan_error', 'block_learning_plan'), 'required', null, 'client');
+		$mform->addElement('textarea', 'message', get_string('message', 'block_learning_plan'));
+        $mform->setType('message', PARAM_TEXT);
+
+        $mform->addElement('hidden', 'viewpage', '8');
+        $mform->setType('viewpage', PARAM_INT);
+        $this->add_action_buttons($cancel = false, $submitlabel = get_string('send_message', 'block_learning_plan'));
+    }
+
+    public function validation($data, $files) {
+            return false;
+    }
+
+    public function display_list() {
+        return false;
+    }
+}
+
