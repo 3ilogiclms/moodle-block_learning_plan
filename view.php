@@ -22,6 +22,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL
  * @author     Azmat Ullah <azmat@3ilogic.com>
  */
+<<<<<<< HEAD
+=======
+
+>>>>>>> b423b198a29e62ded16797568fdb8c1df43c52e0
 require_once('../../config.php');
 $setting = null;
 $row = array();
@@ -95,7 +99,10 @@ $table->head = array('<a href="' . $CFG->wwwroot . '/blocks/learning_plan/view.p
     '<a href="' . $CFG->wwwroot . '/blocks/learning_plan/view.php?viewpage=4">' . get_string('assign_training_learningplan', 'block_learning_plan') . '</a>',
     '<a href="' . $CFG->wwwroot . '/blocks/learning_plan/view.php?viewpage=5">' . get_string('assign_learningplan_user', 'block_learning_plan') . '</a>',
     '<a href="' . $CFG->wwwroot . '/blocks/learning_plan/view.php?viewpage=6">' . get_string('trainingstatus', 'block_learning_plan') . '</a>',
+<<<<<<< HEAD
     '<a href="' . $CFG->wwwroot . '/blocks/learning_plan/view.php?viewpage=8">' . get_string('send_notification', 'block_learning_plan') . '</a>',
+=======
+>>>>>>> b423b198a29e62ded16797568fdb8c1df43c52e0
     '<a href="' . $CFG->wwwroot . '/blocks/learning_plan/view.php?viewpage=7">' . get_string('search', 'block_learning_plan') . '</a>');
 $table->size = array('15%', '15%', '20%', '25%', '15%', '10%');
 $table->align = array('center', 'center', 'center', 'center', 'center', 'center');
@@ -224,7 +231,12 @@ if ($viewpage == 1) { // Add Learning Plans.
     }
     // Delete Record.
     if ($rem) {
+<<<<<<< HEAD
         echo $OUTPUT->confirm(get_string('record_delete', 'block_learning_plan'), '/blocks/learning_plan/view.php?viewpage=5&rem=rem&delete=' . $u_id . '&lp=' . $lp, '/blocks/learning_plan/view.php?viewpage=5');
+=======
+        echo $OUTPUT->confirm(get_string('record_delete', 'block_learning_plan'),
+                '/blocks/learning_plan/view.php?viewpage=5&rem=rem&delete=' . $u_id . '&lp=' . $lp, '/blocks/learning_plan/view.php?viewpage=5');
+>>>>>>> b423b198a29e62ded16797568fdb8c1df43c52e0
         if ($delete) {
             delete_learningplan_record('learning_user_learningplan', $delete, $pageurl, $lp);
         }
@@ -240,6 +252,7 @@ if ($viewpage == 1) { // Add Learning Plans.
     }
 } else if ($viewpage == 7) {
     $form = new search();
+<<<<<<< HEAD
 } else if ($viewpage == 8) {
 
     $form = new send_notification();
@@ -270,6 +283,21 @@ if ($viewpage != 8) {
     if ($table = $form->display_list()) {
         echo html_writer::table($table);
     }
+=======
+}
+// Set viewpage with form.
+$toform['viewpage'] = $viewpage;
+$form->set_data($toform);
+// Display Form.
+$form->display();
+// Form Cancel.
+if ($fromform = $form->is_cancelled()) {
+    redirect("{$CFG->wwwroot}" . "/blocks/learning_plan/view.php?viewpage=" . $viewpage);
+}
+// Display List.
+if ($table = $form->display_list()) {
+    echo html_writer::table($table);
+>>>>>>> b423b198a29e62ded16797568fdb8c1df43c52e0
 }
 $PAGE->requires->js_init_call('M.block_learning_plan.init', array($viewpage, $setting));
 echo $OUTPUT->footer();

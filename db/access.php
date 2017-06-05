@@ -22,6 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL
  * @author     Azmat Ullah <azmat@3ilogic.com>
  */
+<<<<<<< HEAD
 
 $capabilities = array(
     'block/learning_plan:viewmessages' => array(
@@ -48,6 +49,11 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         )
     ),
+=======
+defined('MOODLE_INTERNAL') || die();
+
+$capabilities = array(
+>>>>>>> b423b198a29e62ded16797568fdb8c1df43c52e0
     'block/learning_plan:viewpages' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_BLOCK,
@@ -93,6 +99,10 @@ $capabilities = array(
             'coursecreator' => CAP_ALLOW,
             'manager' => CAP_ALLOW
         )
+<<<<<<< HEAD
     ),
 
+=======
+    )
+>>>>>>> b423b198a29e62ded16797568fdb8c1df43c52e0
 );

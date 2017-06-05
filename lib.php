@@ -23,7 +23,10 @@
  * @author     Azmat Ullah <azmat@3ilogic.com>
  */
 defined('MOODLE_INTERNAL') || die();
+<<<<<<< HEAD
 
+=======
+>>>>>>> b423b198a29e62ded16797568fdb8c1df43c52e0
 /**
  * This function return learning plan and training association key.
  *
@@ -210,6 +213,7 @@ function display_list($lp_id, $u_id) {
             on lut.lpt_id=lpt.id  where lpt.lp_id=? AND lut.u_id=?';
     $inc = 0;
     $rs = $DB->get_recordset_sql($sql, array($lp_id, $u_id));
+<<<<<<< HEAD
 
     if ($DB->record_exists_sql($sql, array($lp_id, $u_id))) {
         foreach ($rs as $log) {
@@ -237,6 +241,36 @@ function display_list($lp_id, $u_id) {
     } else {
         $table->data[] = array('', '', '', '', get_string('notfound', 'block_learning_plan'), '', '', '');
     }
+=======
+	
+	if ($DB->record_exists_sql($sql, array($lp_id, $u_id))) {			
+    foreach ($rs as $log) {
+        $row = array();
+        $row[] = ++$inc;
+        if (strlen($log->url) > 0) {
+            $row[] = '<a title="' . get_string('training', 'block_learning_plan') . '" href="' . $log->url . '">' . format_string($log->training, false) . '</a>';
+        } else {
+            $row[] = format_string($log->training, false);
+        }
+        if ($log->type_id == 1) {
+            $training_method = get_string('elearning', 'block_learning_plan');
+        } else if ($log->type_id == 2) {
+            $training_method = get_string('classroom', 'block_learning_plan');
+        } else if ($log->type_id == 3) {
+            $training_method = get_string('onthejob', 'block_learning_plan');
+        }
+        $row[] = format_string($training_method, false);
+        $row[] = userdate($log->date1, get_string('strftimedatefullshort', 'core_langconfig'));
+        $row[] = userdate($log->date2, get_string('strftimedatefullshort', 'core_langconfig'));
+        $row[] = status_value($log->status);
+        $row[] = format_string($log->remarks, false);
+        $table->data[] = $row;
+    }
+	}
+	else {
+            $table->data[] = array('', '', '', '', get_string('notfound', 'block_learning_plan'), '', '', '');
+        }
+>>>>>>> b423b198a29e62ded16797568fdb8c1df43c52e0
     return $table;
 }
 
@@ -254,7 +288,10 @@ function nav_title($viewpage) {
         5 => get_string('assign_learningplan_user', 'block_learning_plan'),
         6 => get_string('trainingstatus', 'block_learning_plan'),
         7 => get_string('search', 'block_learning_plan'),
+<<<<<<< HEAD
         8 => get_string('send_notification', 'block_learning_plan'),
+=======
+>>>>>>> b423b198a29e62ded16797568fdb8c1df43c52e0
     );
     return $array[$viewpage];
 }
@@ -285,6 +322,7 @@ function training_type($type_id) {
  */
 function isGroup_null() {
     global $DB;
+<<<<<<< HEAD
     $result = $DB->record_exists('groups', array());
     return $result;
 }
@@ -389,3 +427,10 @@ function lp_get_users($id, $message, $training_list) {
         }
     }
 }
+=======
+//    $result = $DB->get_record_sql("SELECT concat (firstname,' ', lastname) as name FROM {user} WHERE id = ?",
+//                                 array($id));
+    $result = $DB->record_exists('groups', array());
+    return $result;
+}
+>>>>>>> b423b198a29e62ded16797568fdb8c1df43c52e0

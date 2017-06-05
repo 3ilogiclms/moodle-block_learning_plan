@@ -62,7 +62,10 @@ class block_learning_plan extends block_base {
             $this->content->text .= html_writer::link($pageurl . '4', get_string('assign_training_learningplan', 'block_learning_plan')) . '<br>';
             $this->content->text .= html_writer::link($pageurl . '5', get_string('assign_learningplan_user', 'block_learning_plan')) . '<br>';
             $this->content->text .= html_writer::link($pageurl . '6', get_string('trainingstatus', 'block_learning_plan')) . '<br>';
+<<<<<<< HEAD
             $this->content->text .= html_writer::link($pageurl . '8', get_string('send_notification', 'block_learning_plan')) . '<br>';
+=======
+>>>>>>> b423b198a29e62ded16797568fdb8c1df43c52e0
             $this->content->text .= html_writer::link($pageurl . '7', get_string('search', 'block_learning_plan'));
         } else if (has_capability('block/learning_plan:viewpages', $this->context)) {
             $pageurl = new moodle_url('/blocks/learning_plan/student/view.php?id');

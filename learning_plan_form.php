@@ -76,8 +76,13 @@ class learningplan_form extends moodleform {
         $sql = "SELECT id, learning_plan, description from {learning_learningplan}";
         $inc = 1;
         $rs = $DB->get_recordset_sql($sql, array());
+<<<<<<< HEAD
 
 
+=======
+		
+		
+>>>>>>> b423b198a29e62ded16797568fdb8c1df43c52e0
 		if ($DB->record_exists_sql($sql, array())) {
         foreach ($rs as $log) {
             $row = array();
@@ -177,7 +182,11 @@ class training_form extends moodleform {
         $sql = "SELECT id, training_name, type_id, start_date, end_date, url  from {learning_training} ";
         $inc = 1;
         $rs = $DB->get_recordset_sql($sql, array());
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> b423b198a29e62ded16797568fdb8c1df43c52e0
 		if ($DB->record_exists_sql($sql, array())) {
         foreach ($rs as $log) {
             $row = array();
@@ -298,7 +307,11 @@ class assigntraining_learningplan__form extends moodleform {
         $sql = "SELECT id, (select learning_plan from {learning_learningplan}  where id=lp_id) as learning_plan,
                (select training_name from {learning_training} where id=t_id) as training_name,
                (select type_id from {learning_training} where id=t_id) as type_id from {learning_plan_training}  ";
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> b423b198a29e62ded16797568fdb8c1df43c52e0
 		$inc = 1;
         //$rs = $DB->get_recordset_sql($sql, array(), $page * $perpage, $perpage);
         $rs = $DB->get_recordset_sql($sql, array());
@@ -375,7 +388,11 @@ class assignlerningplan_user_form extends moodleform {
                (SELECT learning_plan FROM {learning_learningplan} WHERE id = lp_id) as learning_plan,
                (SELECT concat(firstname,' ', lastname) FROM {user} WHERE id = assignee_id) as assignee
                FROM {learning_user_learningplan}";
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> b423b198a29e62ded16797568fdb8c1df43c52e0
 		$inc = 0;
         //$rs = $DB->get_recordset_sql($sql, array(), $page * $perpage, $perpage);
         $rs = $DB->get_recordset_sql($sql, array());
@@ -512,8 +529,13 @@ class search extends moodleform {
                lpt inner join {learning_user_trainingplan} lut
                 on lut.lpt_id=lpt.id  where lpt.lp_id=?  AND lpt.t_id= ? AND lut.status = ?';
         }
+<<<<<<< HEAD
 
 
+=======
+		
+		
+>>>>>>> b423b198a29e62ded16797568fdb8c1df43c52e0
 		$inc = 0;
         $rs = $DB->get_recordset_sql($sql, array($lp_id, $t_id, $status));
         if ($DB->record_exists_sql($sql, array($lp_id, $t_id, $status))) {
@@ -529,7 +551,11 @@ class search extends moodleform {
                 $row[] = '<a href="' . $CFG->wwwroot . '/blocks/learning_plan/view.php?viewpage=6&l_id=' . $log->lp_id . '&u_id=' . $log->id . '&t_id=' . $log->t_id . '&setting=1">Setting</a>';
                 $table->data[] = $row;
             }
+<<<<<<< HEAD
         }
+=======
+        } 
+>>>>>>> b423b198a29e62ded16797568fdb8c1df43c52e0
 		else {
             $table->data[] = array('', '', '', '', get_string('notfound', 'block_learning_plan'), '', '', '');
         }
@@ -537,6 +563,7 @@ class search extends moodleform {
     }
 
 }
+<<<<<<< HEAD
 
 /**
  * Class for add a learning plan.
@@ -583,3 +610,5 @@ $mform->addRule('learning_plan', get_string('learning_plan_error', 'block_learni
     }
 }
 
+=======
+>>>>>>> b423b198a29e62ded16797568fdb8c1df43c52e0

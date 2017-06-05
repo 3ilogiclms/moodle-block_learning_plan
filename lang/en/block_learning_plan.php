@@ -92,6 +92,7 @@ $string['select_user'] = 'Please select user(s)';
 $string['user_training'] = 'Please select training';
 $string['selectuser'] = 'Please select user';
 $string['select_learningplan'] = 'Please select Learning Plan';
+<<<<<<< HEAD
 $string['notfound'] = 'Record not found!';
 $string['messageprovider:learningplan_notification'] = 'Learning plan notification';
 $string['learninig_plan:learningplan_notification'] = 'View message';
@@ -105,3 +106,6 @@ $string['learninig_plan:view'] = 'Learning plan notification view';
 $string['learninig_plan:sendmessages'] = 'Send notification';
 $string['learninig_plan:viewmessages'] = 'View notification';
 
+=======
+$string['notfound'] = 'Record not found!';
+>>>>>>> b423b198a29e62ded16797568fdb8c1df43c52e0
